@@ -1,0 +1,22 @@
+# 依赖与构建产物（体积大、可随时重建，绝不能进仓库）
+node_modules/
+dist/
+dist-ssr/
+coverage/
+
+# 日志
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# 编辑器与系统
+.DS_Store
+Thumbs.db
+.idea/
+*.local
+
+# 环境变量（含密钥，禁止提交）
+.env
+.env.local
+.env.*.local
