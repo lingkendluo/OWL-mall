@@ -4,6 +4,13 @@ dist/
 dist-ssr/
 coverage/
 
+# Maven 构建产物：owl-boot/target 里躺着 68MB 的可执行 jar，一旦进仓库
+# 会把 .git 撑爆且再也删不掉历史，必须在第一次提交前就挡住
+target/
+*.jar
+*.war
+*.class
+
 # 日志
 *.log
 npm-debug.log*
@@ -20,3 +27,20 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+
+# 事故恢复的中间产物（快照包 + 解包/反编译结果，合计 100MB+）
+.backup/
+.restore/
+
+# 无头浏览器验证用的临时 profile（每次探测都会重建）
+.tmp-chrome-profile/
+
+# 本地便携工具：Redis 便携版二进制 + 官方 zip，合计 40MB+，各自官网可下
+# 注意前面要加 /：不加会把 docs/tools/ 这类同名的源码目录一起忽略掉
+/tools/
+
+# 调试期的临时页面，会被 Vite 当成静态资源原样发布出去
+owl-web/public/__*.html
+
+# WorkBuddy 的会话记忆与日志（本地工作痕迹，与代码无关）
+.workbuddy/

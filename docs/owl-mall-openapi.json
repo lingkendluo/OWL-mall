@@ -1,0 +1,6657 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "OWL 商城 API",
+    "version": "1.0.0",
+    "description": "OWL 商城 C 端 + B 端接口。\n\n**约定**：金额单位元（number）；时间毫秒时间戳（int64）；用户/商品/类目 id 均为 string。\n\n**鉴权**：除标注「公开」的接口外，均需 `Authorization: Bearer <accessToken>`。\n\n**错误**：HTTP 200 + 业务码，`code=0` 成功；401 表示未登录或 token 过期。\n\n**数据模型**：`[DTO 入参]` 开头的为请求体，`[VO 出参]` 开头的为响应体，两者不要混用。",
+    "contact": {
+      "name": "OWL-System"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/api/v1",
+      "description": "本地开发"
+    }
+  ],
+  "tags": [
+    {
+      "name": "认证",
+      "description": "注册、登录、游客、token 续期"
+    },
+    {
+      "name": "商品",
+      "description": "首页聚合、类目、商品详情、搜索，全部公开"
+    },
+    {
+      "name": "购物车",
+      "description": "需登录，游客也可用"
+    },
+    {
+      "name": "交易",
+      "description": "计价、下单、订单查询与状态流转"
+    },
+    {
+      "name": "支付",
+      "description": "模拟渠道，含回调与退款"
+    },
+    {
+      "name": "个人中心",
+      "description": "资料、资产、地址、券、积分"
+    },
+    {
+      "name": "消息",
+      "description": "站内信"
+    },
+    {
+      "name": "AI 助手",
+      "description": "DeepSeek 对话，服务端持 Key"
+    },
+    {
+      "name": "后台",
+      "description": "B 端接口，独立 token，C 端 token 403"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/auth/sms-code": {
+      "post": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "发送短信验证码",
+        "description": "dev 环境会把 code 回传便于联调，prod 返回 null。同一手机号 60 秒一次，同 IP 每小时 20 条。",
+        "operationId": "sendSmsCode",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "验证码",
+                          "properties": {
+                            "expireIn": {
+                              "type": "integer",
+                              "description": "有效期，秒",
+                              "example": 300
+                            },
+                            "code": {
+                              "type": "string",
+                              "description": "仅 dev 返回",
+                              "example": "482913"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "expireIn": 300,
+                    "code": "482913"
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SmsCodeRequest"
+              },
+              "example": {
+                "phone": "13800138000",
+                "scene": "register"
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "注册",
+        "description": "手机号已注册 20003；验证码错误 20002；密码需 8-20 位含字母数字。注册成功发新人券并写欢迎消息。",
+        "operationId": "register",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/LoginVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "accessToken": "eyJhbGciOi...",
+                    "refreshToken": "eyJhbGciOi...",
+                    "expiresIn": 7200,
+                    "user": {
+                      "id": "1001",
+                      "name": "罗耀",
+                      "phone": "13800138000",
+                      "email": "",
+                      "level": "normal",
+                      "memberNo": "OWL-2026-4821",
+                      "points": 0,
+                      "coupons": 1,
+                      "balance": 0,
+                      "joinedAt": 1730100000000,
+                      "isGuest": false
+                    }
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              },
+              "example": {
+                "name": "罗耀",
+                "phone": "13800138000",
+                "code": "482913",
+                "password": "abc12345",
+                "agree": true
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "登录",
+        "description": "account 支持手机号或邮箱。账号不存在与密码错误统一返回 20001。连错 5 次锁 15 分钟。",
+        "operationId": "login",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/LoginVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "accessToken": "eyJhbGciOi...",
+                    "refreshToken": "eyJhbGciOi...",
+                    "expiresIn": 7200,
+                    "user": {
+                      "id": "1001",
+                      "name": "罗耀",
+                      "phone": "13800138000",
+                      "email": "",
+                      "level": "black",
+                      "memberNo": "OWL-2026-4821",
+                      "points": 2860,
+                      "coupons": 3,
+                      "balance": 120.5,
+                      "joinedAt": 1730100000000,
+                      "isGuest": false
+                    }
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              },
+              "example": {
+                "account": "13800138000",
+                "password": "abc12345",
+                "remember": true
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/guest": {
+      "post": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "游客登录",
+        "description": "创建真实用户行，is_guest=1，24 小时后定时清理。游客可加购、下单、看消息，不能改密码。",
+        "operationId": "guestLogin",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/LoginVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "accessToken": "eyJhbGciOi...",
+                    "refreshToken": "eyJhbGciOi...",
+                    "expiresIn": 7200,
+                    "user": {
+                      "id": "1002",
+                      "name": "访客",
+                      "phone": "",
+                      "email": "",
+                      "level": "guest",
+                      "memberNo": "",
+                      "points": 0,
+                      "coupons": 0,
+                      "balance": 0,
+                      "joinedAt": 1730100000000,
+                      "isGuest": true
+                    }
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "刷新 token",
+        "description": "refreshToken 必须 type=refresh 且 Redis 中存在。刷新后旧 jti 失效（轮换）。",
+        "operationId": "refreshToken",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "新 token 对",
+                          "properties": {
+                            "accessToken": {
+                              "type": "string"
+                            },
+                            "refreshToken": {
+                              "type": "string"
+                            },
+                            "expiresIn": {
+                              "type": "integer",
+                              "example": 7200
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "accessToken": "eyJ...",
+                    "refreshToken": "eyJ...",
+                    "expiresIn": 7200
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              },
+              "example": {
+                "refreshToken": "eyJhbGciOi..."
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "退出登录",
+        "description": "删除该用户全部 refresh token，当前 access token 剩余 TTL 写入黑名单。",
+        "operationId": "logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "当前用户",
+        "description": "返回 UserVO，前端刷新页面时用它恢复会话。",
+        "operationId": "getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/UserVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "id": "1001",
+                    "name": "罗耀",
+                    "phone": "13800138000",
+                    "email": "",
+                    "level": "black",
+                    "memberNo": "OWL-2026-4821",
+                    "points": 2860,
+                    "coupons": 3,
+                    "balance": 120.5,
+                    "joinedAt": 1730100000000,
+                    "isGuest": false
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "修改资料",
+        "description": "字段可选，只改传入的。",
+        "operationId": "updateMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/UserVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "id": "1001",
+                    "name": "阿枢",
+                    "phone": "13800138000",
+                    "email": "a@b.com",
+                    "level": "black",
+                    "memberNo": "OWL-2026-4821",
+                    "points": 2860,
+                    "coupons": 3,
+                    "balance": 120.5,
+                    "joinedAt": 1730100000000,
+                    "isGuest": false
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              },
+              "example": {
+                "nickname": "阿枢",
+                "email": "a@b.com"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/password": {
+      "put": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "修改密码",
+        "description": "校验旧密码；成功后踢掉所有 refresh token，强制重新登录。",
+        "operationId": "changePassword",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              },
+              "example": {
+                "oldPassword": "abc12345",
+                "newPassword": "xyz98765"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/c/home": {
+      "get": {
+        "tags": [
+          "商品"
+        ],
+        "summary": "首页聚合",
+        "description": "一次返回品牌条、15 个类目（含 8 个细分及 count，不含 items）、12 件推荐。整体缓存 5 分钟。",
+        "operationId": "getHome",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/HomeVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "brand": {
+                      "name": "OWL 商城",
+                      "desc": "15 个大类 · 120 个细分 · 最快 1 小时送达"
+                    },
+                    "categories": [
+                      {
+                        "id": "snacks",
+                        "name": "零食",
+                        "hint": "坚果 · 炒货 · 果干",
+                        "glyph": "<path d=\"M12 3.4...\"/>",
+                        "productCount": 6,
+                        "subs": [
+                          {
+                            "id": "nut",
+                            "name": "坚果炒货",
+                            "count": 2
+                          },
+                          {
+                            "id": "seed",
+                            "name": "瓜子松子",
+                            "count": 0
+                          }
+                        ]
+                      }
+                    ],
+                    "featured": [
+                      {
+                        "id": "snacks-1",
+                        "name": "每日混合坚果 750g",
+                        "spec": "7 种果仁 · 30 小包",
+                        "price": 99.0,
+                        "list": 129.0,
+                        "tag": "会员价",
+                        "emoji": "🥜",
+                        "image": "/static/products/snacks-1.jpg",
+                        "sub": "nut",
+                        "detail": {
+                          "slogan": "一天一小包，把坚果吃成习惯",
+                          "intro": "……",
+                          "facts": {
+                            "规格": "750g / 30 小包"
+                          },
+                          "tips": [
+                            "每天 25-35g"
+                          ]
+                        }
+                      }
+                    ],
+                    "freeShippingAt": 99,
+                    "shippingText": "满 ¥99 免运费 · 最快 1 小时送达"
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/c/categories": {
+      "get": {
+        "tags": [
+          "商品"
+        ],
+        "summary": "类目列表",
+        "description": "15 个类目，每个含全部 8 个细分（含 count=0）。不含 items。",
+        "operationId": "listCategories",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/CategoryVO"
+                          },
+                          "description": "类目数组"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/c/categories/{code}": {
+      "get": {
+        "tags": [
+          "商品"
+        ],
+        "summary": "类目详情",
+        "description": "传 sub 且该细分有货 → 只返回该细分；细分 0 件 → 返回整类且 fallback=true；不传 sub → 整类。",
+        "operationId": "getCategory",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "类目 code",
+            "schema": {
+              "type": "string"
+            },
+            "example": "snacks"
+          },
+          {
+            "name": "sub",
+            "in": "query",
+            "required": false,
+            "description": "细分 code，可空",
+            "schema": {
+              "type": "string"
+            },
+            "example": "nut"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/CategoryVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "id": "snacks",
+                    "name": "零食",
+                    "hint": "坚果 · 炒货 · 果干",
+                    "glyph": "<path .../>",
+                    "productCount": 6,
+                    "subs": [
+                      {
+                        "id": "nut",
+                        "name": "坚果炒货",
+                        "count": 2
+                      }
+                    ],
+                    "items": [
+                      {
+                        "id": "snacks-1",
+                        "name": "每日混合坚果 750g",
+                        "spec": "7 种果仁 · 30 小包",
+                        "price": 99.0,
+                        "list": 129.0,
+                        "tag": "会员价",
+                        "emoji": "🥜",
+                        "image": "/static/products/snacks-1.jpg",
+                        "sub": "nut",
+                        "detail": {
+                          "slogan": "一天一小包",
+                          "intro": "……",
+                          "facts": {
+                            "规格": "750g / 30 小包"
+                          },
+                          "tips": []
+                        }
+                      }
+                    ],
+                    "currentSub": "nut",
+                    "fallback": false
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/c/products": {
+      "get": {
+        "tags": [
+          "商品"
+        ],
+        "summary": "商品列表 / 搜索",
+        "description": "keyword 同时匹配商品名、规格、类目名、类目 hint、细分名（对齐前端 searchHits）。",
+        "operationId": "listProducts",
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "description": "关键词，可空",
+            "schema": {
+              "type": "string"
+            },
+            "example": "坚果"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "description": "类目 code",
+            "schema": {
+              "type": "string"
+            },
+            "example": "snacks"
+          },
+          {
+            "name": "sub",
+            "in": "query",
+            "required": false,
+            "description": "细分 code",
+            "schema": {
+              "type": "string"
+            },
+            "example": "nut"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "description": "排序",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "default",
+                "price_asc",
+                "price_desc",
+                "sales_desc"
+              ]
+            },
+            "example": "default"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "页码",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "description": "每页条数，上限 100",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 20
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "list": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/ProductVO"
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "example": 6
+                            },
+                            "page": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "size": {
+                              "type": "integer",
+                              "example": 20
+                            },
+                            "pages": {
+                              "type": "integer",
+                              "example": 5
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/c/products/{code}": {
+      "get": {
+        "tags": [
+          "商品"
+        ],
+        "summary": "商品详情",
+        "description": "带 siblings：同细分优先，不足用同类补，最多 4 件，排除自己。facts 必须保序。",
+        "operationId": "getProduct",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "商品 code",
+            "schema": {
+              "type": "string"
+            },
+            "example": "snacks-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "商品详情 + 同类推荐",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "spec": {
+                              "type": "string"
+                            },
+                            "price": {
+                              "type": "number"
+                            },
+                            "list": {
+                              "type": "number"
+                            },
+                            "tag": {
+                              "type": "string"
+                            },
+                            "emoji": {
+                              "type": "string"
+                            },
+                            "image": {
+                              "type": "string"
+                            },
+                            "sub": {
+                              "type": "string"
+                            },
+                            "detail": {
+                              "$ref": "#/components/schemas/ProductDetailVO"
+                            },
+                            "siblings": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/ProductVO"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "id": "snacks-1",
+                    "name": "每日混合坚果 750g",
+                    "spec": "7 种果仁 · 30 小包",
+                    "price": 99.0,
+                    "list": 129.0,
+                    "tag": "会员价",
+                    "emoji": "🥜",
+                    "image": "/static/products/snacks-1.jpg",
+                    "sub": "nut",
+                    "detail": {
+                      "slogan": "一天一小包，把坚果吃成习惯",
+                      "intro": "……",
+                      "facts": {
+                        "规格": "750g / 30 小包",
+                        "果仁含量": "约 88%"
+                      },
+                      "tips": [
+                        "每天 25-35g 就够了"
+                      ]
+                    },
+                    "siblings": [
+                      {
+                        "id": "snacks-2",
+                        "name": "东北开口榛子 500g",
+                        "spec": "原味炒熟 · 皮薄好剥",
+                        "price": 45.9,
+                        "list": 59.0,
+                        "tag": "人气",
+                        "emoji": "🌰",
+                        "image": "/static/products/snacks-2.jpg",
+                        "sub": "nut",
+                        "detail": {
+                          "slogan": "",
+                          "intro": "",
+                          "facts": {},
+                          "tips": []
+                        }
+                      }
+                    ]
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/c/featured": {
+      "get": {
+        "tags": [
+          "商品"
+        ],
+        "summary": "推荐位",
+        "description": "is_featured=1 且上架，按 sort 升序。",
+        "operationId": "listFeatured",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "条数，默认 12",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 12
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ProductVO"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/cart": {
+      "get": {
+        "tags": [
+          "购物车"
+        ],
+        "summary": "查询购物车",
+        "description": "lines 按 updated_at 倒序；summary 全部由服务端算，前端不要自己乘。",
+        "operationId": "getCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/CartVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "lines": [
+                      {
+                        "id": "snacks-1",
+                        "name": "每日混合坚果 750g",
+                        "spec": "7 种果仁 · 30 小包",
+                        "price": 99.0,
+                        "list": 129.0,
+                        "emoji": "🥜",
+                        "image": "/static/products/snacks-1.jpg",
+                        "qty": 3,
+                        "checked": true,
+                        "invalid": false
+                      }
+                    ],
+                    "summary": {
+                      "count": 3,
+                      "amount": 297.0,
+                      "saved": 90.0,
+                      "checkedCount": 3,
+                      "checkedAmount": 297.0,
+                      "allChecked": true,
+                      "isFreeShipping": true,
+                      "toFreeShipping": 0,
+                      "shippingRate": 100,
+                      "freeShippingAt": 99,
+                      "shipFee": 0
+                    }
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "购物车"
+        ],
+        "summary": "清空购物车",
+        "description": "",
+        "operationId": "clearCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cart/items": {
+      "post": {
+        "tags": [
+          "购物车"
+        ],
+        "summary": "加入购物车",
+        "description": "已存在则累加，上限 99；加入时 checked 置 1。商品下架 30002，库存 0 返回 30003。",
+        "operationId": "addCartItem",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/CartVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "lines": [
+                      {
+                        "id": "snacks-1",
+                        "name": "每日混合坚果 750g",
+                        "spec": "7 种果仁 · 30 小包",
+                        "price": 99.0,
+                        "list": 129.0,
+                        "emoji": "🥜",
+                        "image": "/static/products/snacks-1.jpg",
+                        "qty": 1,
+                        "checked": true,
+                        "invalid": false
+                      }
+                    ],
+                    "summary": {
+                      "count": 1,
+                      "amount": 99.0,
+                      "saved": 30.0,
+                      "checkedCount": 1,
+                      "checkedAmount": 99.0,
+                      "allChecked": true,
+                      "isFreeShipping": true,
+                      "toFreeShipping": 0,
+                      "shippingRate": 100,
+                      "freeShippingAt": 99,
+                      "shipFee": 0
+                    }
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CartAddRequest"
+              },
+              "example": {
+                "productId": "snacks-1",
+                "qty": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cart/items/{productId}": {
+      "patch": {
+        "tags": [
+          "购物车"
+        ],
+        "summary": "修改数量 / 勾选",
+        "description": "字段可选。qty 越界截断到 1-99，不报错。行不存在 10004。",
+        "operationId": "updateCartItem",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "description": "商品 code",
+            "schema": {
+              "type": "string"
+            },
+            "example": "snacks-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/CartVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "lines": [
+                      {
+                        "id": "snacks-1",
+                        "name": "每日混合坚果 750g",
+                        "spec": "7 种果仁 · 30 小包",
+                        "price": 99.0,
+                        "list": 129.0,
+                        "emoji": "🥜",
+                        "image": "/static/products/snacks-1.jpg",
+                        "qty": 3,
+                        "checked": true,
+                        "invalid": false
+                      }
+                    ],
+                    "summary": {
+                      "count": 3,
+                      "amount": 297.0,
+                      "saved": 90.0,
+                      "checkedCount": 3,
+                      "checkedAmount": 297.0,
+                      "allChecked": true,
+                      "isFreeShipping": true,
+                      "toFreeShipping": 0,
+                      "shippingRate": 100,
+                      "freeShippingAt": 99,
+                      "shipFee": 0
+                    }
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CartUpdateRequest"
+              },
+              "example": {
+                "qty": 3,
+                "checked": true
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "购物车"
+        ],
+        "summary": "删除购物车行",
+        "description": "",
+        "operationId": "removeCartItem",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "description": "商品 code",
+            "schema": {
+              "type": "string"
+            },
+            "example": "snacks-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/CartVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "lines": [],
+                    "summary": {
+                      "count": 0,
+                      "amount": 0,
+                      "saved": 0,
+                      "checkedCount": 0,
+                      "checkedAmount": 0,
+                      "allChecked": false,
+                      "isFreeShipping": false,
+                      "toFreeShipping": 99,
+                      "shippingRate": 0,
+                      "freeShippingAt": 99,
+                      "shipFee": 5
+                    }
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cart/checked": {
+      "put": {
+        "tags": [
+          "购物车"
+        ],
+        "summary": "批量勾选",
+        "description": "ids 不传表示全部行。",
+        "operationId": "checkCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/CartVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "lines": [],
+                    "summary": {
+                      "count": 3,
+                      "amount": 297.0,
+                      "saved": 90.0,
+                      "checkedCount": 3,
+                      "checkedAmount": 297.0,
+                      "allChecked": true,
+                      "isFreeShipping": true,
+                      "toFreeShipping": 0,
+                      "shippingRate": 100,
+                      "freeShippingAt": 99,
+                      "shipFee": 0
+                    }
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CartCheckRequest"
+              },
+              "example": {
+                "checked": true
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "购物车"
+        ],
+        "summary": "删除已勾选",
+        "description": "",
+        "operationId": "removeChecked",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/CartVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "lines": [],
+                    "summary": {
+                      "count": 0,
+                      "amount": 0,
+                      "saved": 0,
+                      "checkedCount": 0,
+                      "checkedAmount": 0,
+                      "allChecked": false,
+                      "isFreeShipping": false,
+                      "toFreeShipping": 99,
+                      "shippingRate": 0,
+                      "freeShippingAt": 99,
+                      "shipFee": 5
+                    }
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cart/merge": {
+      "post": {
+        "tags": [
+          "购物车"
+        ],
+        "summary": "合并本地购物车",
+        "description": "登录成功后调用一次，前端拿到结果后清空 localStorage 的 owl.cart.v1。下架商品进 skipped。",
+        "operationId": "mergeCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/CartMergeVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "lines": [],
+                    "summary": {
+                      "count": 2,
+                      "amount": 198.0,
+                      "saved": 60.0,
+                      "checkedCount": 2,
+                      "checkedAmount": 198.0,
+                      "allChecked": true,
+                      "isFreeShipping": true,
+                      "toFreeShipping": 0,
+                      "shippingRate": 100,
+                      "freeShippingAt": 99,
+                      "shipFee": 0
+                    },
+                    "skipped": [
+                      "fruit-3"
+                    ]
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CartMergeRequest"
+              },
+              "example": {
+                "lines": [
+                  {
+                    "productId": "snacks-1",
+                    "qty": 2
+                  },
+                  {
+                    "productId": "fruit-3",
+                    "qty": 1
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade/preview": {
+      "post": {
+        "tags": [
+          "交易"
+        ],
+        "summary": "结算预览",
+        "description": "服务端重新查价，请求体里没有价格字段。商品下架 30002，库存不足只在 warnings 里提示不阻断。",
+        "operationId": "preview",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PreviewVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "items": [
+                      {
+                        "id": "snacks-1",
+                        "name": "每日混合坚果 750g",
+                        "spec": "7 种果仁 · 30 小包",
+                        "image": "/static/products/snacks-1.jpg",
+                        "price": 99.0,
+                        "list": 129.0,
+                        "qty": 2,
+                        "total": 198.0
+                      }
+                    ],
+                    "amounts": {
+                      "goodsAmount": 198.0,
+                      "discount": 10.0,
+                      "shipFee": 0,
+                      "payable": 188.0,
+                      "saved": 60.0
+                    },
+                    "shipping": {
+                      "freeShippingAt": 99,
+                      "toFreeShipping": 0,
+                      "isFreeShipping": true
+                    },
+                    "address": {
+                      "id": "1",
+                      "receiver": "罗耀",
+                      "phone": "13800138000",
+                      "province": "浙江省",
+                      "city": "杭州市",
+                      "district": "西湖区",
+                      "detail": "文三路 88 号 OWL 公寓 3 幢 1201 室",
+                      "tag": "家",
+                      "isDefault": true
+                    },
+                    "coupons": [
+                      {
+                        "id": "12",
+                        "name": "新人券 满 99 减 10",
+                        "discount": 10.0,
+                        "usable": true,
+                        "reason": null
+                      }
+                    ],
+                    "warnings": []
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewRequest"
+              },
+              "example": {
+                "lines": [
+                  {
+                    "productId": "snacks-1",
+                    "qty": 2
+                  }
+                ],
+                "addressId": "1",
+                "couponId": "12"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade/orders": {
+      "post": {
+        "tags": [
+          "交易"
+        ],
+        "summary": "创建订单",
+        "description": "一个事务里：幂等校验 → 重新计价 → 乐观锁扣库存 → 写订单/订单行/库存流水 → 锁券 → 按 fromCart 删购物车行。clientToken 重复提交返回同一订单；库存不足 30003；券被抢用 40005。",
+        "operationId": "createOrder",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/OrderCreateVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "orderNo": "OWL20261028000123",
+                    "payNo": "P20261028231001001",
+                    "payAmount": 188.0,
+                    "status": 10,
+                    "expireAt": 1730110800000
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderCreateRequest"
+              },
+              "example": {
+                "lines": [
+                  {
+                    "productId": "snacks-1",
+                    "qty": 2
+                  }
+                ],
+                "addressId": "1",
+                "couponId": "12",
+                "remark": "放门口",
+                "deliveryType": 1,
+                "fromCart": true,
+                "clientToken": "c1f4a9e2-8b3d-4a71-9f22-6d0e5b7a1c33"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "交易"
+        ],
+        "summary": "订单列表",
+        "description": "status 映射：all / unpaid(10) / shipping(30) / review(40 且未评价) / after(60,70)。",
+        "operationId": "listOrders",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "状态筛选",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "unpaid",
+                "shipping",
+                "review",
+                "after"
+              ]
+            },
+            "example": "all"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "页码",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "description": "每页条数",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "list": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/OrderBriefVO"
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "example": 3
+                            },
+                            "page": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "size": {
+                              "type": "integer",
+                              "example": 20
+                            },
+                            "pages": {
+                              "type": "integer",
+                              "example": 5
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade/orders/{orderNo}": {
+      "get": {
+        "tags": [
+          "交易"
+        ],
+        "summary": "订单详情",
+        "description": "只能查自己的订单，越权 10003，不存在 40002。",
+        "operationId": "getOrder",
+        "parameters": [
+          {
+            "name": "orderNo",
+            "in": "path",
+            "required": true,
+            "description": "订单号",
+            "schema": {
+              "type": "string"
+            },
+            "example": "OWL20261028000123"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/OrderDetailVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "orderNo": "OWL20261028000123",
+                    "status": 10,
+                    "statusText": "待付款",
+                    "payStatus": 0,
+                    "amounts": {
+                      "goodsAmount": 198.0,
+                      "discount": 10.0,
+                      "shipFee": 0,
+                      "payable": 188.0,
+                      "saved": 60.0
+                    },
+                    "items": [
+                      {
+                        "id": "snacks-1",
+                        "name": "每日混合坚果 750g",
+                        "spec": "7 种果仁 · 30 小包",
+                        "image": "/static/products/snacks-1.jpg",
+                        "price": 99.0,
+                        "list": 129.0,
+                        "qty": 2,
+                        "total": 198.0
+                      }
+                    ],
+                    "address": {
+                      "id": "1",
+                      "receiver": "罗耀",
+                      "phone": "138****8000",
+                      "province": "浙江省",
+                      "city": "杭州市",
+                      "district": "西湖区",
+                      "detail": "文三路 88 号 OWL 公寓 3 幢 1201 室",
+                      "tag": "家",
+                      "isDefault": true
+                    },
+                    "deliveryType": 1,
+                    "deliveryText": "极速达 · 最快 1 小时送达",
+                    "remark": "放门口",
+                    "payNo": "P20261028231001001",
+                    "createdAt": 1730106600000,
+                    "payTime": null,
+                    "deliverTime": null,
+                    "receiveTime": null,
+                    "closeTime": null,
+                    "cancelReason": null,
+                    "timeline": [
+                      {
+                        "status": 10,
+                        "statusText": "待付款",
+                        "at": 1730106600000,
+                        "remark": "订单创建"
+                      }
+                    ]
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade/orders/{orderNo}/cancel": {
+      "post": {
+        "tags": [
+          "交易"
+        ],
+        "summary": "取消订单",
+        "description": "只有 status=10 可取消。回补库存、退券、写状态流水、发消息。",
+        "operationId": "cancelOrder",
+        "parameters": [
+          {
+            "name": "orderNo",
+            "in": "path",
+            "required": true,
+            "description": "订单号",
+            "schema": {
+              "type": "string"
+            },
+            "example": "OWL20261028000123"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/OrderDetailVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "orderNo": "OWL20261028000123",
+                    "status": 50,
+                    "statusText": "已取消",
+                    "payStatus": 0,
+                    "amounts": {
+                      "goodsAmount": 198.0,
+                      "discount": 10.0,
+                      "shipFee": 0,
+                      "payable": 188.0,
+                      "saved": 60.0
+                    },
+                    "items": [],
+                    "address": null,
+                    "deliveryType": 1,
+                    "deliveryText": "",
+                    "remark": null,
+                    "payNo": null,
+                    "createdAt": 1730106600000,
+                    "payTime": null,
+                    "deliverTime": null,
+                    "receiveTime": null,
+                    "closeTime": 1730107260000,
+                    "cancelReason": "不想要了",
+                    "timeline": []
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderCancelRequest"
+              },
+              "example": {
+                "reason": "不想要了"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade/orders/{orderNo}/confirm": {
+      "post": {
+        "tags": [
+          "交易"
+        ],
+        "summary": "确认收货",
+        "description": "只有 status=30 可调用，成功后 40 已完成。",
+        "operationId": "confirmOrder",
+        "parameters": [
+          {
+            "name": "orderNo",
+            "in": "path",
+            "required": true,
+            "description": "订单号",
+            "schema": {
+              "type": "string"
+            },
+            "example": "OWL20261028000123"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/OrderDetailVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "orderNo": "OWL20261028000123",
+                    "status": 40,
+                    "statusText": "已完成",
+                    "payStatus": 1,
+                    "amounts": {
+                      "goodsAmount": 198.0,
+                      "discount": 10.0,
+                      "shipFee": 0,
+                      "payable": 188.0,
+                      "saved": 60.0
+                    },
+                    "items": [],
+                    "address": null,
+                    "deliveryType": 1,
+                    "deliveryText": "",
+                    "remark": null,
+                    "payNo": null,
+                    "createdAt": 1730106600000,
+                    "payTime": 1730106660000,
+                    "deliverTime": 1730110000000,
+                    "receiveTime": 1730120000000,
+                    "closeTime": null,
+                    "cancelReason": null,
+                    "timeline": []
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade/orders/counts": {
+      "get": {
+        "tags": [
+          "交易"
+        ],
+        "summary": "订单角标",
+        "description": "个人中心用，一次给四个数字。counts 是精确路径，Spring 会优先匹配，不会落到 {orderNo}。",
+        "operationId": "orderCounts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/OrderCountVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "unpaid": 1,
+                    "shipping": 2,
+                    "review": 0,
+                    "after": 0
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pay/mock/{orderNo}": {
+      "post": {
+        "tags": [
+          "支付"
+        ],
+        "summary": "发起支付（模拟渠道）",
+        "description": "订单必须是自己的、status=10、未超时。已存在待支付单则复用，不重复创建。",
+        "operationId": "mockPay",
+        "parameters": [
+          {
+            "name": "orderNo",
+            "in": "path",
+            "required": true,
+            "description": "订单号",
+            "schema": {
+              "type": "string"
+            },
+            "example": "OWL20261028000123"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PayVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "payNo": "P20261028231001001",
+                    "channel": "mock",
+                    "amount": 188.0,
+                    "mockToken": "mock_9f2c1a",
+                    "expireAt": 1730110800000
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pay/mock/callback": {
+      "post": {
+        "tags": [
+          "支付"
+        ],
+        "summary": "模拟支付回调",
+        "description": "幂等：payment.status 已是 1 时直接返回成功。成功后订单 10→20，写流水、发消息。白名单接口，用 mockToken 鉴权，不要要求 JWT。",
+        "operationId": "mockCallback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PayCallbackVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "orderNo": "OWL20261028000123",
+                    "payStatus": 1,
+                    "orderStatus": 20
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MockCallbackRequest"
+              },
+              "example": {
+                "payNo": "P20261028231001001",
+                "mockToken": "mock_9f2c1a",
+                "success": true
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/pay/{payNo}": {
+      "get": {
+        "tags": [
+          "支付"
+        ],
+        "summary": "查询支付单",
+        "description": "",
+        "operationId": "getPayment",
+        "parameters": [
+          {
+            "name": "payNo",
+            "in": "path",
+            "required": true,
+            "description": "支付单号",
+            "schema": {
+              "type": "string"
+            },
+            "example": "P20261028231001001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/PayDetailVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "payNo": "P20261028231001001",
+                    "orderNo": "OWL20261028000123",
+                    "channel": "mock",
+                    "amount": 188.0,
+                    "status": 1,
+                    "paidAt": 1730106660000
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pay/refund": {
+      "post": {
+        "tags": [
+          "支付"
+        ],
+        "summary": "申请退款",
+        "description": "只允许 pay_status=1 且订单状态在 20/30/40；本期全额退；重复申请 50003。模拟渠道同步成功。",
+        "operationId": "refund",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/RefundVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "refundNo": "R20261028231500001",
+                    "amount": 188.0,
+                    "status": 0
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefundRequest"
+              },
+              "example": {
+                "orderNo": "OWL20261028000123",
+                "reason": "买错了"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pay/refunds/{refundNo}": {
+      "get": {
+        "tags": [
+          "支付"
+        ],
+        "summary": "查询退款单",
+        "description": "",
+        "operationId": "getRefund",
+        "parameters": [
+          {
+            "name": "refundNo",
+            "in": "path",
+            "required": true,
+            "description": "退款单号",
+            "schema": {
+              "type": "string"
+            },
+            "example": "R20261028231500001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/RefundVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "refundNo": "R20261028231500001",
+                    "amount": 188.0,
+                    "status": 1
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m/profile": {
+      "get": {
+        "tags": [
+          "个人中心"
+        ],
+        "summary": "个人中心汇总",
+        "description": "一次返回 user + assets + orderCounts。orderCounts 用一条 GROUP BY 查完，不要 4 条 count。",
+        "operationId": "getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/ProfileVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "user": {
+                      "id": "1001",
+                      "name": "罗耀",
+                      "phone": "13800138000",
+                      "email": "",
+                      "level": "black",
+                      "memberNo": "OWL-2026-4821",
+                      "points": 2860,
+                      "coupons": 3,
+                      "balance": 120.5,
+                      "joinedAt": 1730100000000,
+                      "isGuest": false
+                    },
+                    "assets": {
+                      "coupons": 3,
+                      "points": 2860,
+                      "balance": 120.5
+                    },
+                    "orderCounts": {
+                      "unpaid": 1,
+                      "shipping": 2,
+                      "review": 0,
+                      "after": 0
+                    }
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m/addresses": {
+      "get": {
+        "tags": [
+          "个人中心"
+        ],
+        "summary": "地址列表",
+        "description": "本人查看自己的地址返回真实手机号（编辑要用），订单里才打码。",
+        "operationId": "listAddresses",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/AddressVO"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": "地址数组"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "个人中心"
+        ],
+        "summary": "新增地址",
+        "description": "最多 20 条；isDefault=true 时在同一事务里把其它地址置 0。",
+        "operationId": "createAddress",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AddressVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "id": "1",
+                    "receiver": "罗耀",
+                    "phone": "13800138000",
+                    "province": "浙江省",
+                    "city": "杭州市",
+                    "district": "西湖区",
+                    "detail": "文三路 88 号 OWL 公寓 3 幢 1201 室",
+                    "tag": "家",
+                    "isDefault": true
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddressRequest"
+              },
+              "example": {
+                "receiver": "罗耀",
+                "phone": "13800138000",
+                "province": "浙江省",
+                "city": "杭州市",
+                "district": "西湖区",
+                "detail": "文三路 88 号 OWL 公寓 3 幢 1201 室",
+                "tag": "家",
+                "isDefault": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m/addresses/{id}": {
+      "put": {
+        "tags": [
+          "个人中心"
+        ],
+        "summary": "修改地址",
+        "description": "",
+        "operationId": "updateAddress",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "地址 id",
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AddressVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "id": "1",
+                    "receiver": "罗耀",
+                    "phone": "13800138000",
+                    "province": "浙江省",
+                    "city": "杭州市",
+                    "district": "西湖区",
+                    "detail": "文三路 88 号 OWL 公寓 3 幢 1202 室",
+                    "tag": "家",
+                    "isDefault": true
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddressRequest"
+              },
+              "example": {
+                "receiver": "罗耀",
+                "phone": "13800138000",
+                "province": "浙江省",
+                "city": "杭州市",
+                "district": "西湖区",
+                "detail": "文三路 88 号 OWL 公寓 3 幢 1202 室",
+                "tag": "家",
+                "isDefault": true
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "个人中心"
+        ],
+        "summary": "删除地址",
+        "description": "",
+        "operationId": "deleteAddress",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "地址 id",
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m/addresses/{id}/default": {
+      "put": {
+        "tags": [
+          "个人中心"
+        ],
+        "summary": "设为默认地址",
+        "description": "",
+        "operationId": "setDefaultAddress",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "地址 id",
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AddressVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "id": "1",
+                    "receiver": "罗耀",
+                    "phone": "13800138000",
+                    "province": "浙江省",
+                    "city": "杭州市",
+                    "district": "西湖区",
+                    "detail": "文三路 88 号 OWL 公寓 3 幢 1201 室",
+                    "tag": "家",
+                    "isDefault": true
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m/coupons": {
+      "get": {
+        "tags": [
+          "个人中心"
+        ],
+        "summary": "我的优惠券",
+        "description": "查询时顺手把过期的置为 2（惰性过期），不要只靠定时任务。",
+        "operationId": "listCoupons",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "状态",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unused",
+                "used",
+                "expired"
+              ]
+            },
+            "example": "unused"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "页码",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "description": "每页条数",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 20
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "list": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/CouponVO"
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "example": 2
+                            },
+                            "page": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "size": {
+                              "type": "integer",
+                              "example": 20
+                            },
+                            "pages": {
+                              "type": "integer",
+                              "example": 5
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m/points": {
+      "get": {
+        "tags": [
+          "个人中心"
+        ],
+        "summary": "积分流水",
+        "description": "",
+        "operationId": "listPoints",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "页码",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "description": "每页条数",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 20
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "list": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/PointsLogVO"
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "example": 8
+                            },
+                            "page": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "size": {
+                              "type": "integer",
+                              "example": 20
+                            },
+                            "pages": {
+                              "type": "integer",
+                              "example": 5
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m/messages": {
+      "get": {
+        "tags": [
+          "消息"
+        ],
+        "summary": "消息列表",
+        "description": "time 由服务端格式化：刚刚 / N 分钟前 / N 小时前 / 昨天 HH:mm / M 月 d 日 / yyyy 年 M 月 d 日。",
+        "operationId": "listMessages",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "description": "类型",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "order",
+                "promo",
+                "system"
+              ]
+            },
+            "example": "all"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "页码",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "description": "每页条数",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 20
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "list": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/MessageVO"
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "example": 7
+                            },
+                            "page": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "size": {
+                              "type": "integer",
+                              "example": 20
+                            },
+                            "pages": {
+                              "type": "integer",
+                              "example": 5
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m/messages/unread": {
+      "get": {
+        "tags": [
+          "消息"
+        ],
+        "summary": "未读数",
+        "description": "",
+        "operationId": "unreadCount",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/UnreadVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "total": 3,
+                    "order": 2,
+                    "promo": 1,
+                    "system": 0
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m/messages/{id}/read": {
+      "post": {
+        "tags": [
+          "消息"
+        ],
+        "summary": "标记已读",
+        "description": "",
+        "operationId": "readMessage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "消息 id",
+            "schema": {
+              "type": "string"
+            },
+            "example": "10086"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m/messages/read-all": {
+      "post": {
+        "tags": [
+          "消息"
+        ],
+        "summary": "全部已读",
+        "description": "",
+        "operationId": "readAllMessages",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m/messages/{id}": {
+      "delete": {
+        "tags": [
+          "消息"
+        ],
+        "summary": "删除消息",
+        "description": "",
+        "operationId": "deleteMessage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "消息 id",
+            "schema": {
+              "type": "string"
+            },
+            "example": "10086"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assistant/chat": {
+      "post": {
+        "tags": [
+          "AI 助手"
+        ],
+        "summary": "购物助手对话",
+        "description": "请求体是前端原样发出的结构。服务端自己拼 system prompt，忽略传入的 system；失败返回兜底文案而不是 5xx。登录 20 次/小时，匿名 5 次/小时（按 IP）。",
+        "operationId": "chat",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/ChatResponseVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "reply": "已经免运费了 —— 已选 ¥198.00，过了 ¥99 门槛。\n\n这单符合极速达条件，最快 1 小时内送到。",
+                    "model": "deepseek-chat",
+                    "usage": {
+                      "promptTokens": 420,
+                      "completionTokens": 86,
+                      "totalTokens": 506
+                    },
+                    "degraded": false
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              },
+              "example": {
+                "model": "deepseek-chat",
+                "messages": [
+                  {
+                    "role": "user",
+                    "content": "帮我凑到免运费"
+                  }
+                ],
+                "context": {
+                  "cartCount": 2,
+                  "cartAmount": 198.0,
+                  "cartCheckedAmount": 198.0,
+                  "cartSaved": 60.0,
+                  "toFreeShipping": 0,
+                  "isFreeShipping": true,
+                  "freeShippingAt": 99,
+                  "lines": [
+                    {
+                      "name": "每日混合坚果 750g",
+                      "qty": 2,
+                      "price": 99.0
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/admin/auth/login": {
+      "post": {
+        "tags": [
+          "后台"
+        ],
+        "summary": "管理员登录",
+        "description": "签发 scope=admin 的 token。C 端 token 访问 /admin/** 一律 403。",
+        "operationId": "adminLogin",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AdminLoginVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "accessToken": "eyJ...",
+                    "expiresIn": 7200,
+                    "admin": {
+                      "id": "1",
+                      "username": "admin",
+                      "nickname": "超级管理员",
+                      "role": "super"
+                    }
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginRequest"
+              },
+              "example": {
+                "username": "admin",
+                "password": "admin123456"
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/admin/products": {
+      "get": {
+        "tags": [
+          "后台"
+        ],
+        "summary": "商品列表（管理端）",
+        "description": "",
+        "operationId": "adminListProducts",
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "description": "关键词",
+            "schema": {
+              "type": "string"
+            },
+            "example": "坚果"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "1上架 0下架，不传全部",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "页码",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "description": "每页条数",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 20
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "list": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/AdminProductVO"
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "example": 90
+                            },
+                            "page": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "size": {
+                              "type": "integer",
+                              "example": 20
+                            },
+                            "pages": {
+                              "type": "integer",
+                              "example": 5
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "后台"
+        ],
+        "summary": "新增商品",
+        "description": "code 由后端生成 {categoryCode}-{序号}，生成过程加 Redis 锁防并发重复。price 必须 <= list。",
+        "operationId": "adminCreateProduct",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AdminProductVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "id": "snacks-7",
+                    "name": "每日混合坚果 750g",
+                    "categoryCode": "snacks",
+                    "subCode": "nut",
+                    "spec": "7 种果仁 · 30 小包",
+                    "price": 99.0,
+                    "list": 129.0,
+                    "image": "/static/products/snacks-1.jpg",
+                    "stock": 200,
+                    "sales": 0,
+                    "status": 1,
+                    "isFeatured": true,
+                    "updatedAt": 1730106600000
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminProductRequest"
+              },
+              "example": {
+                "name": "每日混合坚果 750g",
+                "categoryCode": "snacks",
+                "subCode": "nut",
+                "spec": "7 种果仁 · 30 小包",
+                "price": 99.0,
+                "list": 129.0,
+                "tag": "会员价",
+                "emoji": "🥜",
+                "image": "/static/products/snacks-1.jpg",
+                "stock": 200,
+                "isFeatured": true,
+                "detail": {
+                  "slogan": "一天一小包，把坚果吃成习惯",
+                  "intro": "……",
+                  "facts": {
+                    "规格": "750g / 30 小包"
+                  },
+                  "tips": [
+                    "每天 25-35g"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/products/{code}": {
+      "put": {
+        "tags": [
+          "后台"
+        ],
+        "summary": "修改商品",
+        "description": "写操作后失效 home / categories / product:{code} 缓存。",
+        "operationId": "adminUpdateProduct",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "商品 code",
+            "schema": {
+              "type": "string"
+            },
+            "example": "snacks-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AdminProductVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "id": "snacks-1",
+                    "name": "每日混合坚果 750g",
+                    "categoryCode": "snacks",
+                    "subCode": "nut",
+                    "spec": "7 种果仁 · 30 小包",
+                    "price": 95.0,
+                    "list": 129.0,
+                    "image": "/static/products/snacks-1.jpg",
+                    "stock": 180,
+                    "sales": 12,
+                    "status": 1,
+                    "isFeatured": true,
+                    "updatedAt": 1730106600000
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminProductRequest"
+              },
+              "example": {
+                "name": "每日混合坚果 750g",
+                "categoryCode": "snacks",
+                "subCode": "nut",
+                "spec": "7 种果仁 · 30 小包",
+                "price": 95.0,
+                "list": 129.0,
+                "tag": "会员价",
+                "emoji": "🥜",
+                "image": "/static/products/snacks-1.jpg",
+                "stock": 180,
+                "isFeatured": true,
+                "detail": {
+                  "slogan": "一天一小包，把坚果吃成习惯",
+                  "intro": "……",
+                  "facts": {
+                    "规格": "750g / 30 小包"
+                  },
+                  "tips": [
+                    "每天 25-35g"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "后台"
+        ],
+        "summary": "删除商品",
+        "description": "逻辑删除。已产生订单的商品允许删（订单有快照）。",
+        "operationId": "adminDeleteProduct",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "商品 code",
+            "schema": {
+              "type": "string"
+            },
+            "example": "snacks-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/products/{code}/status": {
+      "patch": {
+        "tags": [
+          "后台"
+        ],
+        "summary": "上下架",
+        "description": "",
+        "operationId": "adminUpdateProductStatus",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "商品 code",
+            "schema": {
+              "type": "string"
+            },
+            "example": "snacks-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AdminProductVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "id": "snacks-1",
+                    "name": "每日混合坚果 750g",
+                    "categoryCode": "snacks",
+                    "subCode": "nut",
+                    "spec": "7 种果仁 · 30 小包",
+                    "price": 99.0,
+                    "list": 129.0,
+                    "image": "/static/products/snacks-1.jpg",
+                    "stock": 200,
+                    "sales": 12,
+                    "status": 0,
+                    "isFeatured": true,
+                    "updatedAt": 1730106600000
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductStatusRequest"
+              },
+              "example": {
+                "status": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/products/{code}/stock": {
+      "patch": {
+        "tags": [
+          "后台"
+        ],
+        "summary": "库存调整",
+        "description": "delta 正数入库、负数出库；不能减到负数（返回 10001）。写 c_stock_log type=4。",
+        "operationId": "adminAdjustStock",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "商品 code",
+            "schema": {
+              "type": "string"
+            },
+            "example": "snacks-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AdminProductVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "id": "snacks-1",
+                    "name": "每日混合坚果 750g",
+                    "categoryCode": "snacks",
+                    "subCode": "nut",
+                    "spec": "7 种果仁 · 30 小包",
+                    "price": 99.0,
+                    "list": 129.0,
+                    "image": "/static/products/snacks-1.jpg",
+                    "stock": 250,
+                    "sales": 12,
+                    "status": 1,
+                    "isFeatured": true,
+                    "updatedAt": 1730106600000
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StockAdjustRequest"
+              },
+              "example": {
+                "delta": 50,
+                "reason": "补货"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/orders": {
+      "get": {
+        "tags": [
+          "后台"
+        ],
+        "summary": "订单列表（管理端）",
+        "description": "",
+        "operationId": "adminListOrders",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "订单状态，不传全部",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 20
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "description": "订单号/收货人",
+            "schema": {
+              "type": "string"
+            },
+            "example": "OWL2026"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "页码",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "description": "每页条数",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 20
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "list": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/OrderBriefVO"
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "example": 20
+                            },
+                            "page": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "size": {
+                              "type": "integer",
+                              "example": 20
+                            },
+                            "pages": {
+                              "type": "integer",
+                              "example": 5
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/orders/{orderNo}": {
+      "get": {
+        "tags": [
+          "后台"
+        ],
+        "summary": "订单详情（管理端）",
+        "description": "",
+        "operationId": "adminGetOrder",
+        "parameters": [
+          {
+            "name": "orderNo",
+            "in": "path",
+            "required": true,
+            "description": "订单号",
+            "schema": {
+              "type": "string"
+            },
+            "example": "OWL20261028000123"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/OrderDetailVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "orderNo": "OWL20261028000123",
+                    "status": 20,
+                    "statusText": "待发货",
+                    "payStatus": 1,
+                    "amounts": {
+                      "goodsAmount": 198.0,
+                      "discount": 10.0,
+                      "shipFee": 0,
+                      "payable": 188.0,
+                      "saved": 60.0
+                    },
+                    "items": [],
+                    "address": null,
+                    "deliveryType": 1,
+                    "deliveryText": "极速达 · 最快 1 小时送达",
+                    "remark": null,
+                    "payNo": "P20261028231001001",
+                    "createdAt": 1730106600000,
+                    "payTime": 1730106660000,
+                    "deliverTime": null,
+                    "receiveTime": null,
+                    "closeTime": null,
+                    "cancelReason": null,
+                    "timeline": []
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/orders/{orderNo}/deliver": {
+      "post": {
+        "tags": [
+          "后台"
+        ],
+        "summary": "订单发货",
+        "description": "只有 status=20 可发货，成功后 30 待收货，写流水、发消息。",
+        "operationId": "adminDeliverOrder",
+        "parameters": [
+          {
+            "name": "orderNo",
+            "in": "path",
+            "required": true,
+            "description": "订单号",
+            "schema": {
+              "type": "string"
+            },
+            "example": "OWL20261028000123"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/OrderDetailVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "orderNo": "OWL20261028000123",
+                    "status": 30,
+                    "statusText": "待收货",
+                    "payStatus": 1,
+                    "amounts": {
+                      "goodsAmount": 198.0,
+                      "discount": 10.0,
+                      "shipFee": 0,
+                      "payable": 188.0,
+                      "saved": 60.0
+                    },
+                    "items": [],
+                    "address": null,
+                    "deliveryType": 1,
+                    "deliveryText": "极速达 · 最快 1 小时送达",
+                    "remark": null,
+                    "payNo": "P20261028231001001",
+                    "createdAt": 1730106600000,
+                    "payTime": 1730106660000,
+                    "deliverTime": 1730110000000,
+                    "receiveTime": null,
+                    "closeTime": null,
+                    "cancelReason": null,
+                    "timeline": []
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeliverRequest"
+              },
+              "example": {
+                "company": "顺丰",
+                "trackingNo": "SF1234567890"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/stats/overview": {
+      "get": {
+        "tags": [
+          "后台"
+        ],
+        "summary": "概览统计",
+        "description": "gmv 只算 pay_status=1 且未退款的订单；lowStockCount 是库存 < 10 且上架。",
+        "operationId": "adminStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/StatsVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "gmv": 128600.0,
+                    "orderCount": 326,
+                    "userCount": 158,
+                    "productCount": 90,
+                    "lowStockCount": 3,
+                    "todayOrderCount": 12,
+                    "todayGmv": 2680.0
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/categories": {
+      "get": {
+        "tags": [
+          "后台"
+        ],
+        "summary": "类目列表（管理端）",
+        "description": "",
+        "operationId": "adminListCategories",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/CategoryVO"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": "类目数组"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "后台"
+        ],
+        "summary": "新增类目",
+        "description": "subs 全量覆盖。有商品的细分不允许删除，返回 30004。",
+        "operationId": "adminCreateCategory",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/CategoryVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "id": "snacks",
+                    "name": "零食",
+                    "hint": "坚果 · 炒货 · 果干",
+                    "glyph": "",
+                    "productCount": 0,
+                    "subs": [],
+                    "items": [],
+                    "currentSub": null,
+                    "fallback": false
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryUpsertRequest"
+              },
+              "example": {
+                "code": "snacks",
+                "name": "零食",
+                "hint": "坚果 · 炒货 · 果干",
+                "glyph": "<path d=\"M12 3.4...\"/>",
+                "sort": 10,
+                "subs": [
+                  {
+                    "code": "nut",
+                    "name": "坚果炒货"
+                  },
+                  {
+                    "code": "seed",
+                    "name": "瓜子松子"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/categories/{code}": {
+      "put": {
+        "tags": [
+          "后台"
+        ],
+        "summary": "修改类目",
+        "description": "",
+        "operationId": "adminUpdateCategory",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "类目 code",
+            "schema": {
+              "type": "string"
+            },
+            "example": "snacks"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Result"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/CategoryVO"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 0,
+                  "message": "ok",
+                  "data": {
+                    "id": "snacks",
+                    "name": "零食",
+                    "hint": "坚果 · 炒货 · 果干",
+                    "glyph": "",
+                    "productCount": 6,
+                    "subs": [],
+                    "items": [],
+                    "currentSub": null,
+                    "fallback": false
+                  },
+                  "traceId": "b7f3c2d1e4a5"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryUpsertRequest"
+              },
+              "example": {
+                "code": "snacks",
+                "name": "零食",
+                "hint": "坚果 · 炒货 · 果干",
+                "glyph": "<path d=\"M12 3.4...\"/>",
+                "sort": 10,
+                "subs": [
+                  {
+                    "code": "nut",
+                    "name": "坚果炒货"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SmsCodeRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 发送验证码",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "11 位手机号",
+            "example": "13800138000"
+          },
+          "scene": {
+            "type": "string",
+            "description": "场景，目前只有 register",
+            "example": "register",
+            "enum": [
+              "register"
+            ]
+          }
+        },
+        "required": [
+          "phone",
+          "scene"
+        ]
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 注册",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "昵称",
+            "example": "罗耀"
+          },
+          "phone": {
+            "type": "string",
+            "description": "手机号",
+            "example": "13800138000"
+          },
+          "code": {
+            "type": "string",
+            "description": "6 位短信验证码",
+            "example": "482913"
+          },
+          "password": {
+            "type": "string",
+            "description": "8-20 位，必须含字母和数字",
+            "example": "abc12345"
+          },
+          "agree": {
+            "type": "boolean",
+            "description": "是否同意用户协议，必须 true",
+            "example": true
+          }
+        },
+        "required": [
+          "name",
+          "phone",
+          "code",
+          "password",
+          "agree"
+        ]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 登录",
+        "properties": {
+          "account": {
+            "type": "string",
+            "description": "手机号或邮箱",
+            "example": "13800138000"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "abc12345"
+          },
+          "remember": {
+            "type": "boolean",
+            "description": "记住我，只影响前端存储位置",
+            "example": true
+          }
+        },
+        "required": [
+          "account",
+          "password"
+        ]
+      },
+      "RefreshTokenRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 刷新 token",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "登录时下发的 refreshToken"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 修改资料（字段可选，只改传入的）",
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "description": "昵称",
+            "example": "阿枢"
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱",
+            "example": "a@b.com"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "头像 URL"
+          }
+        }
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 修改密码",
+        "properties": {
+          "oldPassword": {
+            "type": "string",
+            "description": "原密码",
+            "example": "abc12345"
+          },
+          "newPassword": {
+            "type": "string",
+            "description": "新密码，8-20 位含字母数字",
+            "example": "xyz98765"
+          }
+        },
+        "required": [
+          "oldPassword",
+          "newPassword"
+        ]
+      },
+      "CartAddRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 加入购物车",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "商品 code",
+            "example": "snacks-1"
+          },
+          "qty": {
+            "type": "integer",
+            "description": "数量，1-99，越界截断",
+            "example": 1,
+            "minimum": 1,
+            "maximum": 99
+          }
+        },
+        "required": [
+          "productId"
+        ]
+      },
+      "CartUpdateRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 修改购物车行（字段可选）",
+        "properties": {
+          "qty": {
+            "type": "integer",
+            "description": "数量 1-99",
+            "example": 2,
+            "minimum": 1,
+            "maximum": 99
+          },
+          "checked": {
+            "type": "boolean",
+            "description": "是否勾选",
+            "example": true
+          }
+        }
+      },
+      "CartCheckRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 批量勾选",
+        "properties": {
+          "checked": {
+            "type": "boolean",
+            "description": "true 全选 / false 全不选",
+            "example": true
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "要操作的商品 code，不传表示全部行"
+          }
+        },
+        "required": [
+          "checked"
+        ]
+      },
+      "CartMergeLineDTO": {
+        "type": "object",
+        "description": "[DTO 入参] 合并行",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "商品 code",
+            "example": "snacks-1"
+          },
+          "qty": {
+            "type": "integer",
+            "description": "数量",
+            "example": 2,
+            "minimum": 1,
+            "maximum": 99
+          }
+        },
+        "required": [
+          "productId",
+          "qty"
+        ]
+      },
+      "CartMergeRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 登录后合并本地购物车",
+        "properties": {
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CartMergeLineDTO"
+            }
+          }
+        },
+        "required": [
+          "lines"
+        ]
+      },
+      "OrderLineDTO": {
+        "type": "object",
+        "description": "[DTO 入参] 下单行（只有商品与数量，不含价格）",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "商品 code",
+            "example": "snacks-1"
+          },
+          "qty": {
+            "type": "integer",
+            "description": "数量 1-99",
+            "example": 2,
+            "minimum": 1,
+            "maximum": 99
+          }
+        },
+        "required": [
+          "productId",
+          "qty"
+        ]
+      },
+      "PreviewRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 结算预览",
+        "properties": {
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderLineDTO"
+            }
+          },
+          "addressId": {
+            "type": "string",
+            "description": "收货地址 id，不传用默认地址",
+            "example": "1"
+          },
+          "couponId": {
+            "type": "string",
+            "description": "用户券 id，可空",
+            "example": "12"
+          }
+        },
+        "required": [
+          "lines"
+        ]
+      },
+      "OrderCreateRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 创建订单",
+        "properties": {
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderLineDTO"
+            }
+          },
+          "addressId": {
+            "type": "string",
+            "description": "收货地址 id",
+            "example": "1"
+          },
+          "couponId": {
+            "type": "string",
+            "description": "用户券 id，可空",
+            "example": "12"
+          },
+          "remark": {
+            "type": "string",
+            "description": "订单备注",
+            "example": "放门口"
+          },
+          "deliveryType": {
+            "type": "integer",
+            "description": "1 极速达 / 2 次日达 / 3 自提",
+            "example": 1,
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "fromCart": {
+            "type": "boolean",
+            "description": "是否来自购物车结算；true 会删购物车对应行",
+            "example": true
+          },
+          "clientToken": {
+            "type": "string",
+            "description": "幂等键，前端生成 UUID",
+            "example": "c1f4a9e2-8b3d-4a71-9f22-6d0e5b7a1c33"
+          }
+        },
+        "required": [
+          "lines",
+          "addressId",
+          "clientToken"
+        ]
+      },
+      "OrderCancelRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 取消订单",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "取消原因",
+            "example": "不想要了"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "MockCallbackRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 模拟支付回调",
+        "properties": {
+          "payNo": {
+            "type": "string",
+            "description": "支付单号",
+            "example": "P20261028231001001"
+          },
+          "mockToken": {
+            "type": "string",
+            "description": "发起支付时返回的 mockToken",
+            "example": "mock_9f2c1a"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "true 支付成功 / false 支付失败",
+            "example": true
+          }
+        },
+        "required": [
+          "payNo",
+          "mockToken",
+          "success"
+        ]
+      },
+      "RefundRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 申请退款",
+        "properties": {
+          "orderNo": {
+            "type": "string",
+            "description": "订单号",
+            "example": "OWL20261028000123"
+          },
+          "reason": {
+            "type": "string",
+            "description": "退款原因",
+            "example": "买错了"
+          }
+        },
+        "required": [
+          "orderNo",
+          "reason"
+        ]
+      },
+      "AddressRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 新增/修改收货地址",
+        "properties": {
+          "receiver": {
+            "type": "string",
+            "description": "收货人",
+            "example": "罗耀"
+          },
+          "phone": {
+            "type": "string",
+            "description": "手机号",
+            "example": "13800138000"
+          },
+          "province": {
+            "type": "string",
+            "description": "省",
+            "example": "浙江省"
+          },
+          "city": {
+            "type": "string",
+            "description": "市",
+            "example": "杭州市"
+          },
+          "district": {
+            "type": "string",
+            "description": "区",
+            "example": "西湖区"
+          },
+          "detail": {
+            "type": "string",
+            "description": "详细地址",
+            "example": "文三路 88 号 OWL 公寓 3 幢 1201 室"
+          },
+          "tag": {
+            "type": "string",
+            "description": "标签：家/公司",
+            "example": "家"
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "是否默认地址",
+            "example": true
+          }
+        },
+        "required": [
+          "receiver",
+          "phone",
+          "province",
+          "city",
+          "district",
+          "detail"
+        ]
+      },
+      "ChatMessageDTO": {
+        "type": "object",
+        "description": "[DTO 入参] 对话消息",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "角色",
+            "example": "user",
+            "enum": [
+              "system",
+              "user",
+              "assistant"
+            ]
+          },
+          "content": {
+            "type": "string",
+            "description": "内容",
+            "example": "帮我凑到免运费"
+          }
+        },
+        "required": [
+          "role",
+          "content"
+        ]
+      },
+      "AssistLineDTO": {
+        "type": "object",
+        "description": "[DTO 入参] 助手上下文里的购物车行",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "商品名",
+            "example": "每日混合坚果 750g"
+          },
+          "qty": {
+            "type": "integer",
+            "description": "数量",
+            "example": 2
+          },
+          "price": {
+            "type": "number",
+            "description": "单价，元",
+            "example": 99.0
+          }
+        },
+        "required": [
+          "name",
+          "qty",
+          "price"
+        ]
+      },
+      "AssistContextDTO": {
+        "type": "object",
+        "description": "[DTO 入参] 购物车上下文（前端实时算好后传过来）",
+        "properties": {
+          "cartCount": {
+            "type": "integer",
+            "description": "购物车件数",
+            "example": 2
+          },
+          "cartAmount": {
+            "type": "number",
+            "description": "购物车总额，元",
+            "example": 198.0
+          },
+          "cartCheckedAmount": {
+            "type": "number",
+            "description": "已勾选金额，元",
+            "example": 198.0
+          },
+          "cartSaved": {
+            "type": "number",
+            "description": "相对划线价省下的钱，元",
+            "example": 60.0
+          },
+          "toFreeShipping": {
+            "type": "number",
+            "description": "还差多少免运费，元",
+            "example": 0
+          },
+          "isFreeShipping": {
+            "type": "boolean",
+            "description": "是否已免运费",
+            "example": true
+          },
+          "freeShippingAt": {
+            "type": "number",
+            "description": "免运费门槛，元",
+            "example": 99
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssistLineDTO"
+            }
+          }
+        }
+      },
+      "ChatRequest": {
+        "type": "object",
+        "description": "[DTO 入参] AI 助手对话（前端原样发送，不要改字段名）",
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "模型名",
+            "example": "deepseek-chat"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChatMessageDTO"
+            },
+            "description": "历史消息，最后一条是本次提问"
+          },
+          "context": {
+            "$ref": "#/components/schemas/AssistContextDTO"
+          }
+        },
+        "required": [
+          "messages",
+          "context"
+        ]
+      },
+      "AdminLoginRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 管理员登录",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "用户名",
+            "example": "admin"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "admin123456"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "ProductDetailDTO": {
+        "type": "object",
+        "description": "[DTO 入参] 商品详情四段",
+        "properties": {
+          "slogan": {
+            "type": "string",
+            "description": "一句话卖点",
+            "example": "一天一小包，把坚果吃成习惯"
+          },
+          "intro": {
+            "type": "string",
+            "description": "详细介绍"
+          },
+          "facts": {
+            "type": "object",
+            "description": "关键参数，有序键值对",
+            "example": {
+              "规格": "750g / 30 小包"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "tips": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "选购/使用贴士"
+          }
+        },
+        "required": [
+          "slogan",
+          "intro"
+        ]
+      },
+      "AdminProductRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 后台新增/修改商品",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "商品名",
+            "example": "每日混合坚果 750g"
+          },
+          "categoryCode": {
+            "type": "string",
+            "description": "一级类目 code",
+            "example": "snacks"
+          },
+          "subCode": {
+            "type": "string",
+            "description": "细分 code",
+            "example": "nut"
+          },
+          "spec": {
+            "type": "string",
+            "description": "规格文案",
+            "example": "7 种果仁 · 30 小包"
+          },
+          "price": {
+            "type": "number",
+            "description": "售价，元，必须 <= list",
+            "example": 99.0
+          },
+          "list": {
+            "type": "number",
+            "description": "划线价，元",
+            "example": 129.0
+          },
+          "tag": {
+            "type": "string",
+            "description": "标签",
+            "example": "会员价"
+          },
+          "emoji": {
+            "type": "string",
+            "description": "无图时回落",
+            "example": "🥜"
+          },
+          "image": {
+            "type": "string",
+            "description": "主图 URL",
+            "example": "/static/products/snacks-1.jpg"
+          },
+          "stock": {
+            "type": "integer",
+            "description": "库存",
+            "example": 200,
+            "minimum": 0
+          },
+          "isFeatured": {
+            "type": "boolean",
+            "description": "是否首页推荐",
+            "example": true
+          },
+          "detail": {
+            "$ref": "#/components/schemas/ProductDetailDTO"
+          }
+        },
+        "required": [
+          "name",
+          "categoryCode",
+          "subCode",
+          "spec",
+          "price",
+          "list",
+          "stock",
+          "detail"
+        ]
+      },
+      "ProductStatusRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 上下架",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "1 上架 / 0 下架",
+            "example": 1,
+            "enum": [
+              0,
+              1
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "StockAdjustRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 库存调整",
+        "properties": {
+          "delta": {
+            "type": "integer",
+            "description": "正数入库，负数出库，不能减到负数",
+            "example": 50
+          },
+          "reason": {
+            "type": "string",
+            "description": "调整原因",
+            "example": "补货"
+          }
+        },
+        "required": [
+          "delta",
+          "reason"
+        ]
+      },
+      "DeliverRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 订单发货",
+        "properties": {
+          "company": {
+            "type": "string",
+            "description": "物流公司",
+            "example": "顺丰"
+          },
+          "trackingNo": {
+            "type": "string",
+            "description": "运单号",
+            "example": "SF1234567890"
+          }
+        },
+        "required": [
+          "company",
+          "trackingNo"
+        ]
+      },
+      "SubDTO": {
+        "type": "object",
+        "description": "[DTO 入参] 细分（后台类目维护用）",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "细分 code",
+            "example": "nut"
+          },
+          "name": {
+            "type": "string",
+            "description": "细分名",
+            "example": "坚果炒货"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "CategoryUpsertRequest": {
+        "type": "object",
+        "description": "[DTO 入参] 后台新增/修改类目",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "类目 code",
+            "example": "snacks"
+          },
+          "name": {
+            "type": "string",
+            "description": "类目名",
+            "example": "零食"
+          },
+          "hint": {
+            "type": "string",
+            "description": "副文案",
+            "example": "坚果 · 炒货 · 果干"
+          },
+          "glyph": {
+            "type": "string",
+            "description": "SVG path 字符串"
+          },
+          "sort": {
+            "type": "integer",
+            "description": "排序",
+            "example": 10
+          },
+          "subs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubDTO"
+            },
+            "description": "全量覆盖，已有商品的细分不能删"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "hint",
+          "subs"
+        ]
+      },
+      "Result": {
+        "type": "object",
+        "description": "统一响应体。code=0 成功，其它见文档附录 A",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "0 成功",
+            "example": 0
+          },
+          "message": {
+            "type": "string",
+            "example": "ok"
+          },
+          "data": {
+            "description": "业务数据，失败时为 null",
+            "nullable": true
+          },
+          "traceId": {
+            "type": "string",
+            "example": "b7f3c2d1e4a5"
+          }
+        }
+      },
+      "UserVO": {
+        "type": "object",
+        "description": "[VO 出参] 用户（与前端 AuthUser 逐字对应）",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "必须是字符串，返回数字会导致前端会话丢失",
+            "example": "1001"
+          },
+          "name": {
+            "type": "string",
+            "description": "昵称",
+            "example": "罗耀"
+          },
+          "phone": {
+            "type": "string",
+            "example": "13800138000"
+          },
+          "email": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "description": "会员等级",
+            "example": "black",
+            "enum": [
+              "black",
+              "normal",
+              "guest"
+            ]
+          },
+          "memberNo": {
+            "type": "string",
+            "description": "会员编号，游客为空串",
+            "example": "OWL-2026-4821"
+          },
+          "points": {
+            "type": "integer",
+            "example": 2860
+          },
+          "coupons": {
+            "type": "integer",
+            "description": "未使用券数量",
+            "example": 3
+          },
+          "balance": {
+            "type": "number",
+            "description": "余额，元",
+            "example": 120.5
+          },
+          "joinedAt": {
+            "type": "integer",
+            "description": "注册时间，毫秒时间戳",
+            "example": 1730100000000,
+            "format": "int64"
+          },
+          "isGuest": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "LoginVO": {
+        "type": "object",
+        "description": "[VO 出参] 登录/注册/刷新结果",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "description": "access 有效期，秒",
+            "example": 7200
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserVO"
+          }
+        }
+      },
+      "ProductDetailVO": {
+        "type": "object",
+        "description": "[VO 出参] 商品详情四段",
+        "properties": {
+          "slogan": {
+            "type": "string"
+          },
+          "intro": {
+            "type": "string"
+          },
+          "facts": {
+            "type": "object",
+            "description": "有序键值对，前端按插入顺序渲染",
+            "example": {
+              "规格": "750g / 30 小包"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "tips": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ProductVO": {
+        "type": "object",
+        "description": "[VO 出参] 商品",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "商品 code",
+            "example": "snacks-1"
+          },
+          "name": {
+            "type": "string",
+            "example": "每日混合坚果 750g"
+          },
+          "spec": {
+            "type": "string",
+            "example": "7 种果仁 · 30 小包"
+          },
+          "price": {
+            "type": "number",
+            "description": "售价，元",
+            "example": 99.0
+          },
+          "list": {
+            "type": "number",
+            "description": "划线价，元",
+            "example": 129.0
+          },
+          "tag": {
+            "type": "string",
+            "example": "会员价"
+          },
+          "emoji": {
+            "type": "string",
+            "example": "🥜"
+          },
+          "image": {
+            "type": "string",
+            "example": "/static/products/snacks-1.jpg"
+          },
+          "sub": {
+            "type": "string",
+            "description": "细分 code",
+            "example": "nut"
+          },
+          "detail": {
+            "$ref": "#/components/schemas/ProductDetailVO"
+          }
+        }
+      },
+      "SubVO": {
+        "type": "object",
+        "description": "[VO 出参] 细分",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "nut"
+          },
+          "name": {
+            "type": "string",
+            "example": "坚果炒货"
+          },
+          "count": {
+            "type": "integer",
+            "description": "该细分商品数，0 表示补货中，不能过滤",
+            "example": 2
+          }
+        }
+      },
+      "CategoryVO": {
+        "type": "object",
+        "description": "[VO 出参] 类目",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "snacks"
+          },
+          "name": {
+            "type": "string",
+            "example": "零食"
+          },
+          "hint": {
+            "type": "string",
+            "example": "坚果 · 炒货 · 果干"
+          },
+          "glyph": {
+            "type": "string",
+            "description": "SVG path，前端 v-html 渲染"
+          },
+          "productCount": {
+            "type": "integer",
+            "example": 6
+          },
+          "subs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubVO"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVO"
+            },
+            "description": "首页聚合接口不返回，类目详情才返回"
+          },
+          "currentSub": {
+            "type": "string",
+            "description": "当前筛选的细分 code",
+            "example": "nut",
+            "nullable": true
+          },
+          "fallback": {
+            "type": "boolean",
+            "description": "细分无货退回整类时为 true",
+            "example": false
+          }
+        }
+      },
+      "HomeVO": {
+        "type": "object",
+        "description": "[VO 出参] 首页聚合",
+        "properties": {
+          "brand": {
+            "type": "object",
+            "description": "品牌条",
+            "properties": {
+              "name": {
+                "type": "string",
+                "example": "OWL 商城"
+              },
+              "desc": {
+                "type": "string",
+                "example": "15 个大类 · 120 个细分 · 最快 1 小时送达"
+              }
+            }
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryVO"
+            },
+            "description": "15 个类目，含 8 个细分及 count，不含 items"
+          },
+          "featured": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVO"
+            },
+            "description": "12 件推荐"
+          },
+          "freeShippingAt": {
+            "type": "number",
+            "description": "免运费门槛，元",
+            "example": 99
+          },
+          "shippingText": {
+            "type": "string",
+            "example": "满 ¥99 免运费 · 最快 1 小时送达"
+          }
+        }
+      },
+      "CartLineVO": {
+        "type": "object",
+        "description": "[VO 出参] 购物车行",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "商品 code",
+            "example": "snacks-1"
+          },
+          "name": {
+            "type": "string",
+            "example": "每日混合坚果 750g"
+          },
+          "spec": {
+            "type": "string",
+            "example": "7 种果仁 · 30 小包"
+          },
+          "price": {
+            "type": "number",
+            "description": "当前售价，元",
+            "example": 99.0
+          },
+          "list": {
+            "type": "number",
+            "description": "划线价，元",
+            "example": 129.0
+          },
+          "emoji": {
+            "type": "string",
+            "example": "🥜"
+          },
+          "image": {
+            "type": "string",
+            "example": "/static/products/snacks-1.jpg"
+          },
+          "qty": {
+            "type": "integer",
+            "example": 3
+          },
+          "checked": {
+            "type": "boolean",
+            "example": true
+          },
+          "invalid": {
+            "type": "boolean",
+            "description": "商品下架/删除时为 true，前端置灰",
+            "example": false
+          }
+        }
+      },
+      "CartSummaryVO": {
+        "type": "object",
+        "description": "[VO 出参] 购物车汇总（服务端算，前端只展示）",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "总件数",
+            "example": 3
+          },
+          "amount": {
+            "type": "number",
+            "description": "总金额，元",
+            "example": 297.0
+          },
+          "saved": {
+            "type": "number",
+            "description": "相对划线价省下的钱，元",
+            "example": 90.0
+          },
+          "checkedCount": {
+            "type": "integer",
+            "description": "已勾选件数",
+            "example": 3
+          },
+          "checkedAmount": {
+            "type": "number",
+            "description": "已勾选金额，元",
+            "example": 297.0
+          },
+          "allChecked": {
+            "type": "boolean",
+            "example": true
+          },
+          "isFreeShipping": {
+            "type": "boolean",
+            "example": true
+          },
+          "toFreeShipping": {
+            "type": "number",
+            "description": "还差多少免运费，元",
+            "example": 0
+          },
+          "shippingRate": {
+            "type": "integer",
+            "description": "免运费进度 0-100",
+            "example": 100
+          },
+          "freeShippingAt": {
+            "type": "number",
+            "example": 99
+          },
+          "shipFee": {
+            "type": "number",
+            "description": "当前运费，元",
+            "example": 0
+          }
+        }
+      },
+      "CartVO": {
+        "type": "object",
+        "description": "[VO 出参] 购物车",
+        "properties": {
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CartLineVO"
+            }
+          },
+          "summary": {
+            "$ref": "#/components/schemas/CartSummaryVO"
+          }
+        }
+      },
+      "CartMergeVO": {
+        "type": "object",
+        "description": "[VO 出参] 合并结果",
+        "properties": {
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CartLineVO"
+            }
+          },
+          "summary": {
+            "$ref": "#/components/schemas/CartSummaryVO"
+          },
+          "skipped": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "因下架被跳过的商品 code"
+          }
+        }
+      },
+      "AmountVO": {
+        "type": "object",
+        "description": "[VO 出参] 金额明细",
+        "properties": {
+          "goodsAmount": {
+            "type": "number",
+            "description": "商品合计，元",
+            "example": 198.0
+          },
+          "discount": {
+            "type": "number",
+            "description": "优惠金额，元",
+            "example": 10.0
+          },
+          "shipFee": {
+            "type": "number",
+            "description": "运费，元",
+            "example": 0
+          },
+          "payable": {
+            "type": "number",
+            "description": "应付 = 商品 - 优惠 + 运费",
+            "example": 188.0
+          },
+          "saved": {
+            "type": "number",
+            "description": "相对划线价省下的钱",
+            "example": 60.0
+          }
+        }
+      },
+      "ShippingVO": {
+        "type": "object",
+        "description": "[VO 出参] 运费信息",
+        "properties": {
+          "freeShippingAt": {
+            "type": "number",
+            "example": 99
+          },
+          "toFreeShipping": {
+            "type": "number",
+            "example": 0
+          },
+          "isFreeShipping": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "PreviewItemVO": {
+        "type": "object",
+        "description": "[VO 出参] 结算商品行",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "snacks-1"
+          },
+          "name": {
+            "type": "string"
+          },
+          "spec": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "description": "元",
+            "example": 99.0
+          },
+          "list": {
+            "type": "number",
+            "description": "元",
+            "example": 129.0
+          },
+          "qty": {
+            "type": "integer",
+            "example": 2
+          },
+          "total": {
+            "type": "number",
+            "description": "行小计，元",
+            "example": 198.0
+          }
+        }
+      },
+      "CouponBriefVO": {
+        "type": "object",
+        "description": "[VO 出参] 结算页可用券",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "12"
+          },
+          "name": {
+            "type": "string",
+            "example": "新人券 满 99 减 10"
+          },
+          "discount": {
+            "type": "number",
+            "description": "可减金额，元",
+            "example": 10.0
+          },
+          "usable": {
+            "type": "boolean",
+            "description": "是否满足门槛",
+            "example": true
+          },
+          "reason": {
+            "type": "string",
+            "description": "不可用原因",
+            "nullable": true
+          }
+        }
+      },
+      "AddressVO": {
+        "type": "object",
+        "description": "[VO 出参] 收货地址",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "1"
+          },
+          "receiver": {
+            "type": "string",
+            "example": "罗耀"
+          },
+          "phone": {
+            "type": "string",
+            "description": "本人查看自己的地址返回真实手机号",
+            "example": "13800138000"
+          },
+          "province": {
+            "type": "string",
+            "example": "浙江省"
+          },
+          "city": {
+            "type": "string",
+            "example": "杭州市"
+          },
+          "district": {
+            "type": "string",
+            "example": "西湖区"
+          },
+          "detail": {
+            "type": "string",
+            "example": "文三路 88 号 OWL 公寓 3 幢 1201 室"
+          },
+          "tag": {
+            "type": "string",
+            "example": "家"
+          },
+          "isDefault": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "PreviewVO": {
+        "type": "object",
+        "description": "[VO 出参] 结算预览",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PreviewItemVO"
+            }
+          },
+          "amounts": {
+            "$ref": "#/components/schemas/AmountVO"
+          },
+          "shipping": {
+            "$ref": "#/components/schemas/ShippingVO"
+          },
+          "address": {
+            "$ref": "#/components/schemas/AddressVO"
+          },
+          "coupons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CouponBriefVO"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "库存不足等提示，不阻断"
+          }
+        }
+      },
+      "OrderBriefVO": {
+        "type": "object",
+        "description": "[VO 出参] 订单列表项",
+        "properties": {
+          "orderNo": {
+            "type": "string",
+            "example": "OWL20261028000123"
+          },
+          "status": {
+            "type": "integer",
+            "description": "10待付款 20待发货 30待收货 40已完成 50已取消 60退款中 70已退款",
+            "example": 10
+          },
+          "statusText": {
+            "type": "string",
+            "example": "待付款"
+          },
+          "payAmount": {
+            "type": "number",
+            "description": "元",
+            "example": 188.0
+          },
+          "totalQty": {
+            "type": "integer",
+            "example": 2
+          },
+          "firstItemName": {
+            "type": "string",
+            "example": "每日混合坚果 750g"
+          },
+          "coverImage": {
+            "type": "string",
+            "example": "/static/products/snacks-1.jpg"
+          },
+          "createdAt": {
+            "type": "integer",
+            "example": 1730106600000,
+            "format": "int64"
+          },
+          "expireAt": {
+            "type": "integer",
+            "description": "待付款超时时间",
+            "example": 1730110800000,
+            "format": "int64"
+          }
+        }
+      },
+      "OrderItemVO": {
+        "type": "object",
+        "description": "[VO 出参] 订单行（快照，不随商品改价变化）",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "snacks-1"
+          },
+          "name": {
+            "type": "string"
+          },
+          "spec": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "example": 99.0
+          },
+          "list": {
+            "type": "number",
+            "example": 129.0
+          },
+          "qty": {
+            "type": "integer",
+            "example": 2
+          },
+          "total": {
+            "type": "number",
+            "example": 198.0
+          }
+        }
+      },
+      "TimelineVO": {
+        "type": "object",
+        "description": "[VO 出参] 订单时间线",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 10
+          },
+          "statusText": {
+            "type": "string",
+            "example": "待付款"
+          },
+          "at": {
+            "type": "integer",
+            "example": 1730106600000,
+            "format": "int64"
+          },
+          "remark": {
+            "type": "string",
+            "example": "订单创建"
+          }
+        }
+      },
+      "OrderDetailVO": {
+        "type": "object",
+        "description": "[VO 出参] 订单详情",
+        "properties": {
+          "orderNo": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "example": 10
+          },
+          "statusText": {
+            "type": "string",
+            "example": "待付款"
+          },
+          "payStatus": {
+            "type": "integer",
+            "description": "0未支付 1已支付 2已退款",
+            "example": 0
+          },
+          "amounts": {
+            "$ref": "#/components/schemas/AmountVO"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemVO"
+            }
+          },
+          "address": {
+            "$ref": "#/components/schemas/AddressVO"
+          },
+          "deliveryType": {
+            "type": "integer",
+            "example": 1
+          },
+          "deliveryText": {
+            "type": "string",
+            "example": "极速达 · 最快 1 小时送达"
+          },
+          "remark": {
+            "type": "string",
+            "example": "放门口"
+          },
+          "payNo": {
+            "type": "string",
+            "example": "P20261028231001001"
+          },
+          "createdAt": {
+            "type": "integer",
+            "example": 1730106600000,
+            "format": "int64"
+          },
+          "payTime": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "deliverTime": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "receiveTime": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "closeTime": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "cancelReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimelineVO"
+            }
+          }
+        }
+      },
+      "OrderCountVO": {
+        "type": "object",
+        "description": "[VO 出参] 订单角标（个人中心用）",
+        "properties": {
+          "unpaid": {
+            "type": "integer",
+            "description": "待付款",
+            "example": 1
+          },
+          "shipping": {
+            "type": "integer",
+            "description": "待收货",
+            "example": 2
+          },
+          "review": {
+            "type": "integer",
+            "description": "待评价",
+            "example": 0
+          },
+          "after": {
+            "type": "integer",
+            "description": "退换/售后",
+            "example": 0
+          }
+        }
+      },
+      "OrderCreateVO": {
+        "type": "object",
+        "description": "[VO 出参] 下单结果",
+        "properties": {
+          "orderNo": {
+            "type": "string",
+            "example": "OWL20261028000123"
+          },
+          "payNo": {
+            "type": "string",
+            "example": "P20261028231001001"
+          },
+          "payAmount": {
+            "type": "number",
+            "description": "元",
+            "example": 188.0
+          },
+          "status": {
+            "type": "integer",
+            "example": 10
+          },
+          "expireAt": {
+            "type": "integer",
+            "description": "支付截止，毫秒",
+            "example": 1730110800000,
+            "format": "int64"
+          }
+        }
+      },
+      "PayVO": {
+        "type": "object",
+        "description": "[VO 出参] 发起支付结果",
+        "properties": {
+          "payNo": {
+            "type": "string",
+            "example": "P20261028231001001"
+          },
+          "channel": {
+            "type": "string",
+            "example": "mock"
+          },
+          "amount": {
+            "type": "number",
+            "description": "元",
+            "example": 188.0
+          },
+          "mockToken": {
+            "type": "string",
+            "description": "模拟渠道凭证，回调时带上",
+            "example": "mock_9f2c1a"
+          },
+          "expireAt": {
+            "type": "integer",
+            "example": 1730110800000,
+            "format": "int64"
+          }
+        }
+      },
+      "PayCallbackVO": {
+        "type": "object",
+        "description": "[VO 出参] 支付回调结果",
+        "properties": {
+          "orderNo": {
+            "type": "string"
+          },
+          "payStatus": {
+            "type": "integer",
+            "description": "1 成功",
+            "example": 1
+          },
+          "orderStatus": {
+            "type": "integer",
+            "description": "20 待发货",
+            "example": 20
+          }
+        }
+      },
+      "PayDetailVO": {
+        "type": "object",
+        "description": "[VO 出参] 支付单",
+        "properties": {
+          "payNo": {
+            "type": "string"
+          },
+          "orderNo": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string",
+            "example": "mock"
+          },
+          "amount": {
+            "type": "number",
+            "description": "元",
+            "example": 188.0
+          },
+          "status": {
+            "type": "integer",
+            "description": "0待支付 1成功 2失败 3关闭 4已退款",
+            "example": 1
+          },
+          "paidAt": {
+            "type": "integer",
+            "example": 1730106660000,
+            "format": "int64",
+            "nullable": true
+          }
+        }
+      },
+      "RefundVO": {
+        "type": "object",
+        "description": "[VO 出参] 退款单",
+        "properties": {
+          "refundNo": {
+            "type": "string",
+            "example": "R20261028231500001"
+          },
+          "amount": {
+            "type": "number",
+            "description": "元",
+            "example": 188.0
+          },
+          "status": {
+            "type": "integer",
+            "description": "0处理中 1成功 2失败",
+            "example": 0
+          }
+        }
+      },
+      "AssetsVO": {
+        "type": "object",
+        "description": "[VO 出参] 账户资产",
+        "properties": {
+          "coupons": {
+            "type": "integer",
+            "description": "未使用券数量",
+            "example": 3
+          },
+          "points": {
+            "type": "integer",
+            "example": 2860
+          },
+          "balance": {
+            "type": "number",
+            "description": "元",
+            "example": 120.5
+          }
+        }
+      },
+      "ProfileVO": {
+        "type": "object",
+        "description": "[VO 出参] 个人中心汇总（一次给全）",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserVO"
+          },
+          "assets": {
+            "$ref": "#/components/schemas/AssetsVO"
+          },
+          "orderCounts": {
+            "$ref": "#/components/schemas/OrderCountVO"
+          }
+        }
+      },
+      "CouponVO": {
+        "type": "object",
+        "description": "[VO 出参] 我的优惠券",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "12"
+          },
+          "name": {
+            "type": "string",
+            "example": "新人券 满 99 减 10"
+          },
+          "type": {
+            "type": "integer",
+            "description": "1满减 2折扣",
+            "example": 1
+          },
+          "threshold": {
+            "type": "number",
+            "description": "门槛，元",
+            "example": 99.0
+          },
+          "discount": {
+            "type": "number",
+            "description": "满减金额，元",
+            "example": 10.0
+          },
+          "startAt": {
+            "type": "integer",
+            "example": 1730100000000,
+            "format": "int64"
+          },
+          "endAt": {
+            "type": "integer",
+            "example": 1732700000000,
+            "format": "int64"
+          },
+          "status": {
+            "type": "integer",
+            "description": "0未用 1已用 2过期",
+            "example": 0
+          },
+          "usable": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "PointsLogVO": {
+        "type": "object",
+        "description": "[VO 出参] 积分流水",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "change": {
+            "type": "integer",
+            "description": "正加负减",
+            "example": 50
+          },
+          "type": {
+            "type": "integer",
+            "description": "1下单 2评价 3退款扣回 4后台调整",
+            "example": 2
+          },
+          "remark": {
+            "type": "string",
+            "example": "订单评价奖励"
+          },
+          "createdAt": {
+            "type": "integer",
+            "example": 1730106600000,
+            "format": "int64"
+          }
+        }
+      },
+      "MessageVO": {
+        "type": "object",
+        "description": "[VO 出参] 站内信",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "10086"
+          },
+          "kind": {
+            "type": "string",
+            "description": "直接对齐前端",
+            "example": "order",
+            "enum": [
+              "order",
+              "promo",
+              "system"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "example": "订单已发出"
+          },
+          "body": {
+            "type": "string",
+            "example": "你购买的「谷饲西冷牛排 1kg」已由杭州文三路店拣货完成"
+          },
+          "time": {
+            "type": "string",
+            "description": "服务端格式化好的展示文案",
+            "example": "12 分钟前"
+          },
+          "read": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "integer",
+            "example": 1730105880000,
+            "format": "int64"
+          },
+          "bizNo": {
+            "type": "string",
+            "description": "关联单号，点进去可跳",
+            "example": "OWL20261028000123"
+          }
+        }
+      },
+      "UnreadVO": {
+        "type": "object",
+        "description": "[VO 出参] 未读数",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "example": 3
+          },
+          "order": {
+            "type": "integer",
+            "example": 2
+          },
+          "promo": {
+            "type": "integer",
+            "example": 1
+          },
+          "system": {
+            "type": "integer",
+            "example": 0
+          }
+        }
+      },
+      "UsageVO": {
+        "type": "object",
+        "description": "[VO 出参] 模型用量",
+        "properties": {
+          "promptTokens": {
+            "type": "integer",
+            "example": 420
+          },
+          "completionTokens": {
+            "type": "integer",
+            "example": 86
+          },
+          "totalTokens": {
+            "type": "integer",
+            "example": 506
+          }
+        }
+      },
+      "ChatResponseVO": {
+        "type": "object",
+        "description": "[VO 出参] AI 回复（必须含 reply，前端认这个字段）",
+        "properties": {
+          "reply": {
+            "type": "string",
+            "example": "已经免运费了 —— 已选 ¥198.00，过了 ¥99 门槛。"
+          },
+          "model": {
+            "type": "string",
+            "example": "deepseek-chat"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/UsageVO"
+          },
+          "degraded": {
+            "type": "boolean",
+            "description": "模型不可用时的兜底回复标记",
+            "example": false
+          }
+        }
+      },
+      "AdminVO": {
+        "type": "object",
+        "description": "[VO 出参] 管理员",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "1"
+          },
+          "username": {
+            "type": "string",
+            "example": "admin"
+          },
+          "nickname": {
+            "type": "string",
+            "example": "超级管理员"
+          },
+          "role": {
+            "type": "string",
+            "example": "super",
+            "enum": [
+              "super",
+              "ops"
+            ]
+          }
+        }
+      },
+      "AdminLoginVO": {
+        "type": "object",
+        "description": "[VO 出参] 管理员登录结果",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "example": 7200
+          },
+          "admin": {
+            "$ref": "#/components/schemas/AdminVO"
+          }
+        }
+      },
+      "StatsVO": {
+        "type": "object",
+        "description": "[VO 出参] 后台概览",
+        "properties": {
+          "gmv": {
+            "type": "number",
+            "description": "只算已支付且未退款，元",
+            "example": 128600.0
+          },
+          "orderCount": {
+            "type": "integer",
+            "example": 326
+          },
+          "userCount": {
+            "type": "integer",
+            "example": 158
+          },
+          "productCount": {
+            "type": "integer",
+            "example": 90
+          },
+          "lowStockCount": {
+            "type": "integer",
+            "description": "库存 < 10 且上架",
+            "example": 3
+          },
+          "todayOrderCount": {
+            "type": "integer",
+            "example": 12
+          },
+          "todayGmv": {
+            "type": "number",
+            "description": "元",
+            "example": 2680.0
+          }
+        }
+      },
+      "AdminProductVO": {
+        "type": "object",
+        "description": "[VO 出参] 后台商品（比 ProductVO 多管理字段）",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "snacks-1"
+          },
+          "name": {
+            "type": "string"
+          },
+          "categoryCode": {
+            "type": "string",
+            "example": "snacks"
+          },
+          "subCode": {
+            "type": "string",
+            "example": "nut"
+          },
+          "spec": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "example": 99.0
+          },
+          "list": {
+            "type": "number",
+            "example": 129.0
+          },
+          "image": {
+            "type": "string"
+          },
+          "stock": {
+            "type": "integer",
+            "example": 200
+          },
+          "sales": {
+            "type": "integer",
+            "example": 12
+          },
+          "status": {
+            "type": "integer",
+            "description": "1上架 0下架",
+            "example": 1
+          },
+          "isFeatured": {
+            "type": "boolean",
+            "example": true
+          },
+          "updatedAt": {
+            "type": "integer",
+            "example": 1730106600000,
+            "format": "int64"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "登录接口返回的 accessToken，直接填值，不要加 Bearer 前缀（Apifox 会自动加）"
+      }
+    }
+  }
+}
