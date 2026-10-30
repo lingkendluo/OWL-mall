@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/owl_mall?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false&rewriteBatchedStatements=true
+    # 冒号后面是默认值：本地不设环境变量时行为与硬编码完全一致，
+    # 只是仓库里不再出现明文密码。要覆盖就 export MYSQL_PASSWORD=xxx
+    username: "${MYSQL_USERNAME:root}"
+    password: "${MYSQL_PASSWORD:123456}"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 5000
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      # 本地便携版 Redis 的密码，见 tools/redis/owl.conf
+      # 若你改成了无密码启动，把下面这行删掉或留空即可
+      password: "${REDIS_PASSWORD:owl123456}"
+      database: 0
+      timeout: 3000ms
+      connect-timeout: 2000ms
+
+logging:
+  level:
+    com.owl: debug
+    org.springframework.jdbc: info

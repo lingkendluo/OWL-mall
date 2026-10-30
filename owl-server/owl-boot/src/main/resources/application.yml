@@ -1,0 +1,65 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: owl-server
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+  servlet:
+    multipart:
+      max-file-size: 5MB
+  mvc:
+    static-path-pattern: /static/**
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    banner: false
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+owl:
+  jwt:
+    secret: ${OWL_JWT_SECRET:owl-mall-dev-secret-please-change-in-prod-32chars}
+    access-ttl: 7200          # 秒
+    refresh-ttl: 1209600      # 14 天
+  shipping:
+    free-threshold-cent: 9900 # 满 99 元免运费
+    fee-cent: 500             # 不满收 5 元
+  trade:
+    order-expire-minutes: 30
+    max-qty: 99
+  ai:
+    base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+    api-key: ${DEEPSEEK_API_KEY:}
+    model: deepseek-chat
+    timeout-ms: 30000
+  sms:
+    return-code: true         # dev 回传验证码方便联调；prod 必须 false
+    resend-seconds: 60
+  seed:
+    enabled: true
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+springdoc:
+  swagger-ui:
+    path: /doc.html
+
+logging:
+  level:
+    com.owl: debug
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [%X{traceId}] %logger{40} - %msg%n"
