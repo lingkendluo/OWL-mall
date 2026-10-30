@@ -1,0 +1,869 @@
+/**
+ * 待购买清单页（/checkout）
+ * 视觉与购物车同源，类名独立 chk- 前缀，避免和 cart-* 互相覆盖。
+ */
+
+/* ================= 关系说明条 ================= */
+.chk-note {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px dashed var(--owl-brand-100);
+  border-radius: 16px;
+  background: var(--owl-brand-50);
+}
+
+.chk-note-ico {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--owl-brand-100);
+  border-radius: 50%;
+  background: var(--owl-surface);
+  color: var(--owl-brand-600);
+}
+
+.chk-note-ico svg {
+  width: 17px;
+  height: 17px;
+}
+
+.chk-note p {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.chk-note b {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--owl-brand-700);
+}
+
+.chk-note span {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--owl-text-2);
+}
+
+.chk-note-btn {
+  flex: none;
+  height: 32px;
+  padding: 0 16px;
+  border: 1px solid var(--owl-brand-100);
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-surface);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--owl-brand-700);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+
+.chk-note-btn:hover {
+  background: var(--owl-surface-2);
+  border-color: var(--owl-brand-500);
+}
+
+/* ================= 通用卡片 ================= */
+.chk-card {
+  margin-top: 14px;
+  border: 1px solid var(--owl-border);
+  border-radius: 18px;
+  background: var(--owl-surface);
+  overflow: hidden;
+}
+
+/* ================= 收货地址 ================= */
+.chk-addr {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  text-align: left;
+}
+
+.chk-addr-ico {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--owl-brand-50);
+  color: var(--owl-brand-600);
+}
+
+.chk-addr-ico svg {
+  width: 18px;
+  height: 18px;
+}
+
+.chk-addr-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.chk-addr-line {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.chk-addr-line b {
+  font-weight: 700;
+}
+
+.chk-addr-line span {
+  font-size: 12.5px;
+  color: var(--owl-text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 默认地址用品牌渐变徽章，普通标签退回浅底，一眼能分出主次 */
+.chk-addr-line i {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--owl-brand-grad);
+  color: var(--owl-on-dark);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.chk-addr-line i.is-plain {
+  background: var(--owl-surface-2);
+  color: var(--owl-text-3);
+}
+
+.chk-addr-text {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--owl-text-3);
+}
+
+/* 右侧：送达提示 + 切换/管理按钮 */
+.chk-addr-side {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.chk-addr-tip {
+  font-size: 11.5px;
+  font-style: normal;
+  color: var(--owl-gold-700);
+  white-space: nowrap;
+}
+
+.chk-addr-acts {
+  display: flex;
+  gap: 8px;
+}
+
+.chk-addr-btn {
+  height: 30px;
+  padding: 0 14px;
+  border: 1px solid var(--owl-brand-100);
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-surface);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--owl-brand-700);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.chk-addr-btn:hover {
+  border-color: var(--owl-brand-500);
+  background: var(--owl-brand-50);
+}
+
+.chk-addr-btn.is-ghost {
+  border-color: var(--owl-border-soft);
+  color: var(--owl-text-2);
+}
+
+.chk-addr-btn.is-ghost:hover {
+  border-color: var(--owl-brand-500);
+  color: var(--owl-brand-700);
+}
+
+/* ================= 地址选择弹窗 ================= */
+.chk-picker-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(15, 17, 19, 0.44);
+  animation: chk-fade 0.16s var(--owl-ease);
+}
+
+.chk-picker {
+  position: fixed;
+  z-index: 61;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(460px, calc(100vw - 32px));
+  max-height: min(72vh, 560px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  background: var(--owl-surface);
+  box-shadow: 0 32px 72px -28px rgba(15, 17, 19, 0.45);
+  overflow: hidden;
+  animation: chk-pop 0.18s var(--owl-ease);
+}
+
+@keyframes chk-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes chk-pop {
+  from {
+    opacity: 0.5;
+    transform: translate(-50%, -46%) scale(0.98);
+  }
+}
+
+.chk-picker-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--owl-border);
+}
+
+.chk-picker-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.chk-picker-head span {
+  font-size: 12px;
+  color: var(--owl-text-3);
+}
+
+.chk-picker-list {
+  flex: 1;
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.chk-picker-row {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.16s,
+    border-color 0.16s;
+}
+
+.chk-picker-row:hover {
+  background: var(--owl-surface-2);
+}
+
+.chk-picker-row.is-on {
+  border-color: var(--owl-brand-100);
+  background: var(--owl-brand-50);
+}
+
+.chk-picker-dot {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  border: 1.5px solid var(--owl-border);
+  border-radius: 50%;
+  background: var(--owl-surface);
+  transition:
+    background 0.16s,
+    border-color 0.16s;
+}
+
+.chk-picker-row.is-on .chk-picker-dot {
+  border-color: var(--owl-brand-600);
+  background: var(--owl-brand-600);
+  box-shadow: inset 0 0 0 3px var(--owl-surface);
+}
+
+.chk-picker-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.chk-picker-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.chk-picker-line b {
+  font-weight: 700;
+}
+
+.chk-picker-line em {
+  font-size: 12.5px;
+  font-style: normal;
+  color: var(--owl-text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.chk-picker-line i {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--owl-brand-grad);
+  color: var(--owl-on-dark);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.chk-picker-line i.is-plain {
+  background: var(--owl-surface-2);
+  color: var(--owl-text-3);
+}
+
+.chk-picker-text {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--owl-text-3);
+}
+
+.chk-picker-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--owl-border);
+}
+
+/* ================= 商品列表 ================= */
+.chk-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px 0;
+}
+
+.chk-head h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.chk-head span {
+  font-size: 12px;
+  color: var(--owl-text-3);
+}
+
+.chk-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+.chk-row {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) 108px 96px 32px;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+}
+
+.chk-row + .chk-row {
+  border-top: 1px solid var(--owl-border-soft);
+}
+
+.chk-thumb {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(150deg, #fafbfb 0%, #eff0f2 100%);
+  font-size: 34px;
+  line-height: 1;
+  overflow: hidden;
+}
+
+/* 有京东实拍主图就铺满方块，没有才退回 emoji */
+.chk-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 44%;
+  border-radius: inherit;
+}
+
+.chk-main {
+  min-width: 0;
+}
+
+.chk-name {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chk-spec {
+  margin: 4px 0 0;
+  font-size: 11.5px;
+  color: var(--owl-text-3);
+}
+
+.chk-price {
+  margin: 6px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--owl-price);
+  font-variant-numeric: tabular-nums;
+}
+
+.chk-price small {
+  margin-right: 1px;
+  font-size: 11px;
+}
+
+.chk-price del {
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--owl-text-4);
+}
+
+/* 数量步进器 */
+.chk-qty {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--owl-border);
+  border-radius: var(--owl-radius-pill);
+  overflow: hidden;
+}
+
+.chk-qty button {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: var(--owl-surface);
+  color: var(--owl-brand-600);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    background 0.18s,
+    color 0.18s;
+}
+
+.chk-qty button:hover:not(:disabled) {
+  background: var(--owl-brand-grad);
+  color: var(--owl-on-dark);
+}
+
+.chk-qty button:disabled {
+  color: var(--owl-text-4);
+  cursor: not-allowed;
+}
+
+.chk-qty span {
+  min-width: 40px;
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.chk-line-total {
+  margin: 0;
+  justify-self: end;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--owl-price);
+  font-variant-numeric: tabular-nums;
+}
+
+.chk-line-total small {
+  margin-right: 1px;
+  font-size: 11px;
+}
+
+.chk-del {
+  width: 30px;
+  height: 30px;
+  justify-self: end;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--owl-text-3);
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.chk-del:hover {
+  background: var(--owl-brand-50);
+  color: var(--owl-brand-600);
+}
+
+.chk-del svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ================= 商品 + 金额两栏 =================
+   桌面端左边清单、右边小票，避免金额卡孤零零飘在右下角。 */
+.chk-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  align-items: start;
+  gap: 14px;
+}
+
+.chk-body .chk-card {
+  margin-top: 0;
+}
+
+/* 清单长了以后小票跟着滚，不用回头找 */
+.chk-side {
+  position: sticky;
+  top: 0;
+}
+
+/* ================= 金额明细 ================= */
+.chk-summary {
+  padding: 18px;
+}
+
+.chk-summary h2 {
+  margin: 0 0 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.chk-summary dl {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.chk-summary dl > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.chk-summary dt {
+  font-size: 12.5px;
+  color: var(--owl-text-2);
+}
+
+.chk-summary dd {
+  margin: 0;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chk-summary .is-save {
+  color: var(--owl-brand-600);
+}
+
+.chk-summary .is-total {
+  margin-top: 2px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--owl-border);
+}
+
+.chk-summary .is-total dt {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--owl-text-1);
+}
+
+.chk-summary .is-total dd {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--owl-price);
+  letter-spacing: -0.02em;
+}
+
+.chk-summary .is-total small {
+  margin-right: 2px;
+  font-size: 13px;
+}
+
+/* ================= 底部提交条 ================= */
+.chk-foot {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px var(--owl-s8);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.chk-foot-sum {
+  margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.chk-foot-sum > span {
+  font-size: 12.5px;
+  color: var(--owl-text-3);
+}
+
+.chk-foot-sum b {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--owl-price);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.chk-foot-sum b small {
+  margin-right: 2px;
+  font-size: 13px;
+}
+
+.chk-foot-sum em {
+  font-size: 12px;
+  font-style: normal;
+  color: var(--owl-text-3);
+}
+
+.chk-submit {
+  height: 44px;
+  padding: 0 40px;
+  border: 0;
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-brand-grad);
+  color: var(--owl-on-dark);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 12px 24px -16px rgba(168, 15, 25, 0.9);
+  transition:
+    background 0.2s,
+    transform 0.2s var(--owl-ease);
+}
+
+.chk-submit:hover {
+  background: linear-gradient(135deg, #333539 0%, #111214 100%);
+  transform: translateY(-1px);
+}
+
+.chk-submit:active {
+  transform: scale(0.98);
+}
+
+/* ================= 空态 ================= */
+.chk-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 24px;
+  border: 1px solid var(--owl-border);
+  border-radius: 18px;
+  background: var(--owl-surface);
+  text-align: center;
+}
+
+.chk-empty-ico {
+  width: 66px;
+  height: 66px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--owl-brand-100);
+  border-radius: 50%;
+  background: var(--owl-brand-50);
+  color: var(--owl-brand-600);
+}
+
+.chk-empty-ico svg {
+  width: 28px;
+  height: 28px;
+}
+
+.chk-empty h2 {
+  margin: 16px 0 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.chk-empty p {
+  margin: 8px 0 0;
+  max-width: 420px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--owl-text-3);
+  /* 两行时长短均衡，别只剩一个「到这里」吊在末尾 */
+  text-wrap: balance;
+}
+
+.chk-empty-btn {
+  margin-top: 20px;
+  height: 40px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-brand-grad);
+  color: var(--owl-on-dark);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.chk-empty-btn:hover {
+  filter: brightness(1.12);
+}
+
+/* ================= 窄屏 ================= */
+@media (max-width: 1040px) {
+  /* 一列放不下清单 + 小票，改成上下排 */
+  .chk-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .chk-side {
+    position: static;
+  }
+}
+
+@media (max-width: 860px) {
+  .chk-note {
+    flex-wrap: wrap;
+  }
+
+  .chk-note-btn {
+    width: 100%;
+  }
+
+  .chk-row {
+    grid-template-columns: 60px minmax(0, 1fr) 32px;
+    grid-template-areas:
+      'thumb main del'
+      'thumb bottom bottom';
+    row-gap: 10px;
+    padding: 14px 16px;
+  }
+
+  .chk-thumb {
+    grid-area: thumb;
+    width: 60px;
+    height: 60px;
+    font-size: 26px;
+  }
+
+  .chk-main {
+    grid-area: main;
+  }
+
+  .chk-del {
+    grid-area: del;
+    align-self: start;
+  }
+
+  .chk-qty {
+    grid-area: bottom;
+    justify-self: start;
+  }
+
+  .chk-line-total {
+    grid-area: bottom;
+    justify-self: end;
+  }
+}
+
+@media (max-width: 640px) {
+  /* 窄屏把「切换/管理」挪到地址下面一行，省得挤成一团 */
+  .chk-addr {
+    flex-wrap: wrap;
+    padding: 14px;
+    row-gap: 10px;
+  }
+
+  .chk-addr-main {
+    flex: 1 1 calc(100% - 52px);
+  }
+
+  .chk-addr-side {
+    flex: 1 1 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 52px;
+  }
+
+  .chk-picker-head,
+  .chk-picker-foot {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .chk-summary {
+    padding: 14px;
+  }
+
+  .chk-foot {
+    padding: 12px 16px;
+  }
+
+  .chk-submit {
+    padding: 0 28px;
+  }
+}

@@ -1,0 +1,1217 @@
+/**
+ * 管理端样式。与 C 端（home.css / item.css）共用 tokens.css 的色阶，
+ * 但布局是「工具型」：左侧深色导航 + 右侧浅色工作区，信息密度比商城高。
+ * 所有类名统一 adm- 前缀，不进 C 端的命名空间。
+ */
+
+.adm-shell {
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  min-height: 100vh;
+  background: #f5f6f7;
+  color: var(--owl-text-1);
+}
+
+/* ------------------------------ 侧栏 ------------------------------ */
+
+.adm-side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px 14px;
+  background: #101113;
+  color: #e8e9eb;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.adm-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 8px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.adm-brand-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #ff4d3a 0%, #cf2410 100%);
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+
+.adm-brand-text b {
+  display: block;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+.adm-brand-text span {
+  font-size: 11px;
+  color: #8b9098;
+}
+
+.adm-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.adm-nav-group {
+  padding: 10px 10px 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #6d727a;
+  text-transform: uppercase;
+}
+
+.adm-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 11px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #c8cbd0;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s, color 0.15s;
+}
+
+.adm-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.adm-nav-item.is-active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-weight: 600;
+}
+
+.adm-nav-item.is-active::before {
+  content: '';
+  position: absolute;
+  left: -14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 18px;
+  border-radius: 0 3px 3px 0;
+  background: var(--owl-red);
+}
+
+.adm-nav-item i {
+  font-style: normal;
+  width: 16px;
+  text-align: center;
+  opacity: 0.9;
+}
+
+.adm-side-foot {
+  margin-top: auto;
+  padding: 12px 10px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  line-height: 1.6;
+  color: #6d727a;
+}
+
+.adm-side-foot b {
+  color: #a8adb5;
+  font-weight: 600;
+}
+
+/* ------------------------------ 主区 ------------------------------ */
+
+.adm-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.adm-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 24px;
+  background: #fff;
+  border-bottom: 1px solid #e6e7e9;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.adm-top h1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.adm-top p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--owl-text-3);
+}
+
+.adm-top-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.adm-who {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.3;
+}
+
+.adm-who b {
+  font-size: 13px;
+}
+
+.adm-who span {
+  font-size: 11px;
+  color: var(--owl-text-3);
+}
+
+.adm-body {
+  padding: 20px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* ------------------------------ 卡片 ------------------------------ */
+
+.adm-card {
+  background: #fff;
+  border: 1px solid #e6e7e9;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.adm-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid #eef0f2;
+}
+
+.adm-card-head h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.adm-card-head p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--owl-text-3);
+}
+
+.adm-card-body {
+  padding: 16px;
+}
+
+/* ------------------------------ 指标 ------------------------------ */
+
+.adm-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.adm-stat {
+  background: #fff;
+  border: 1px solid #e6e7e9;
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.adm-stat span {
+  display: block;
+  font-size: 12px;
+  color: var(--owl-text-3);
+}
+
+.adm-stat b {
+  display: block;
+  margin-top: 6px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.adm-stat em {
+  font-style: normal;
+  font-size: 12px;
+  color: var(--owl-text-3);
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+.adm-stat.is-alert b {
+  color: var(--owl-red-deep);
+}
+
+/* ------------------------------ 工具条 ------------------------------ */
+
+.adm-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eef0f2;
+  background: #fbfbfc;
+}
+
+.adm-toolbar .adm-spacer {
+  margin-left: auto;
+}
+
+.adm-tabs {
+  display: inline-flex;
+  padding: 3px;
+  background: #f1f2f4;
+  border-radius: 9px;
+  gap: 2px;
+}
+
+.adm-tab {
+  border: 0;
+  background: transparent;
+  padding: 5px 12px;
+  font-size: 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  color: var(--owl-text-2);
+  white-space: nowrap;
+}
+
+.adm-tab.is-active {
+  background: #fff;
+  color: var(--owl-text-1);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(15, 17, 19, 0.08);
+}
+
+/* 待付款订单数：跟在 tab 文字后面，红底白字，和用户端顶栏的待付款角标呼应 */
+.adm-tab-count {
+  display: inline-block;
+  min-width: 16px;
+  height: 16px;
+  margin-left: 4px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--owl-red);
+  color: #fff;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+  vertical-align: 1px;
+}
+
+/* ------------------------------ 表单 ------------------------------ */
+
+.adm-input,
+.adm-select,
+.adm-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 11px;
+  border: 1px solid #dcdee1;
+  border-radius: 9px;
+  background: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--owl-text-1);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.adm-input:focus,
+.adm-select:focus,
+.adm-textarea:focus {
+  outline: none;
+  border-color: #9aa0a8;
+  box-shadow: 0 0 0 3px rgba(17, 18, 20, 0.06);
+}
+
+.adm-input.is-search {
+  width: 220px;
+}
+
+.adm-textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.7;
+}
+
+.adm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.adm-field > label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--owl-text-2);
+}
+
+.adm-field > label i {
+  font-style: normal;
+  color: var(--owl-red-deep);
+  margin-left: 3px;
+}
+
+.adm-field-hint {
+  font-size: 11px;
+  color: var(--owl-text-4);
+}
+
+.adm-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.adm-form-grid .span-2 {
+  grid-column: 1 / -1;
+}
+
+.adm-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ------------------------------ 按钮 ------------------------------ */
+
+.adm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9px;
+  border: 1px solid #dcdee1;
+  background: #fff;
+  color: var(--owl-text-1);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+
+.adm-btn:hover {
+  background: #f6f7f8;
+}
+
+.adm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.adm-btn.primary {
+  background: var(--owl-brand-grad);
+  border-color: #000;
+  color: #fff;
+  font-weight: 600;
+}
+
+.adm-btn.primary:hover {
+  background: #000;
+}
+
+.adm-btn.danger {
+  color: var(--owl-red-deep);
+  border-color: #f3c9c1;
+}
+
+.adm-btn.danger:hover {
+  background: #fff3f0;
+}
+
+.adm-btn.sm {
+  padding: 5px 9px;
+  font-size: 12px;
+  border-radius: 7px;
+}
+
+.adm-btn.link {
+  border: 0;
+  background: transparent;
+  padding: 4px 6px;
+  color: var(--owl-text-2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.adm-btn.link:hover {
+  color: var(--owl-text-1);
+}
+
+/* ------------------------------ 表格 ------------------------------ */
+
+.adm-table-wrap {
+  overflow-x: auto;
+}
+
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.adm-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--owl-text-3);
+  background: #fbfbfc;
+  border-bottom: 1px solid #eef0f2;
+  white-space: nowrap;
+}
+
+.adm-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid #f2f3f4;
+  vertical-align: middle;
+}
+
+.adm-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.adm-table tbody tr:hover {
+  background: #fafbfc;
+}
+
+.adm-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.adm-prod {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 220px;
+}
+
+.adm-prod img {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #f1f2f4;
+  flex: none;
+}
+
+.adm-prod b {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.adm-prod span {
+  font-size: 11px;
+  color: var(--owl-text-3);
+}
+
+/* ------------------------------ 标签 ------------------------------ */
+
+.adm-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #f1f2f4;
+  color: var(--owl-text-2);
+  white-space: nowrap;
+}
+
+.adm-tag.ok {
+  background: #eef7ef;
+  color: #1d7a37;
+}
+
+.adm-tag.off {
+  background: #f1f2f4;
+  color: #6d727a;
+}
+
+.adm-tag.warn {
+  background: #fff3f0;
+  color: var(--owl-red-deep);
+}
+
+.adm-tag.info {
+  background: #eef2fb;
+  color: #2d4f9e;
+}
+
+/* ------------------------------ 抽屉 ------------------------------ */
+
+.adm-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 17, 19, 0.42);
+  z-index: 40;
+  animation: adm-fade 0.16s ease;
+}
+
+.adm-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(520px, 92vw);
+  background: #fff;
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -18px 0 40px rgba(15, 17, 19, 0.18);
+  animation: adm-slide 0.2s ease;
+}
+
+.adm-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eef0f2;
+}
+
+.adm-drawer-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.adm-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.adm-drawer-foot {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 14px 20px;
+  border-top: 1px solid #eef0f2;
+  background: #fbfbfc;
+}
+
+@keyframes adm-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes adm-slide {
+  from {
+    transform: translateX(28px);
+    opacity: 0.6;
+  }
+}
+
+/* ------------------------------ 状态 ------------------------------ */
+
+.adm-empty {
+  padding: 44px 20px;
+  text-align: center;
+  color: var(--owl-text-3);
+  font-size: 13px;
+}
+
+.adm-empty b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--owl-text-1);
+}
+
+.adm-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: #fff3f0;
+  border: 1px solid #ffd7cc;
+  color: #8c2410;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.adm-alert button {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+.adm-loading {
+  padding: 30px;
+  text-align: center;
+  color: var(--owl-text-3);
+  font-size: 12px;
+}
+
+/* 顶部飘一句操作结果，3 秒后自己消失 */
+.adm-toast {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: #111214;
+  color: #fff;
+  font-size: 12.5px;
+  box-shadow: 0 10px 26px rgba(15, 17, 19, 0.24);
+  animation: adm-fade 0.16s ease;
+}
+
+.adm-toast.is-error {
+  background: #cf2410;
+}
+
+/* ------------------------------ 分页 ------------------------------ */
+
+.adm-pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid #eef0f2;
+  font-size: 12px;
+  color: var(--owl-text-3);
+}
+
+/* ------------------------------ 登录页 ------------------------------ */
+
+.adm-login {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  background: #fff;
+}
+
+.adm-login-aside {
+  position: relative;
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #101113;
+  color: #e8e9eb;
+  overflow: hidden;
+}
+
+.adm-login-aside::after {
+  content: '';
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  right: -180px;
+  bottom: -220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 77, 58, 0.32) 0%, rgba(255, 77, 58, 0) 68%);
+}
+
+.adm-login-aside h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.adm-login-aside p {
+  margin: 14px 0 0;
+  max-width: 380px;
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: #9ba1a9;
+}
+
+.adm-login-list {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 26px;
+}
+
+.adm-login-list span {
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 11.5px;
+  color: #c8cbd0;
+}
+
+.adm-login-foot {
+  position: relative;
+  z-index: 1;
+  font-size: 11.5px;
+  color: #6d727a;
+}
+
+.adm-login-main {
+  display: grid;
+  place-items: center;
+  padding: 32px;
+}
+
+.adm-login-card {
+  width: min(360px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.adm-login-card h2 {
+  margin: 0;
+  font-size: 21px;
+  letter-spacing: -0.01em;
+}
+
+.adm-login-card > p {
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  color: var(--owl-text-3);
+}
+
+.adm-login-tip {
+  margin-top: 4px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: #f6f7f8;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--owl-text-3);
+}
+
+.adm-login-tip b {
+  color: var(--owl-text-1);
+}
+
+/* ------------------------------ 详情 / 弹窗补充 ------------------------------ */
+
+.adm-sub {
+  margin: 18px 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--owl-text-3);
+  text-transform: uppercase;
+}
+
+.adm-kv {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--owl-line, #ececee);
+}
+
+.adm-kv > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  background: #fff;
+  font-size: 12px;
+}
+
+.adm-kv span {
+  color: var(--owl-text-3);
+  flex: none;
+}
+
+.adm-kv b {
+  font-weight: 600;
+  text-align: right;
+  word-break: break-all;
+}
+
+.adm-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--owl-line, #f1f2f4);
+}
+
+.adm-line:last-child {
+  border-bottom: 0;
+}
+
+.adm-line img {
+  width: 44px;
+  height: 44px;
+  border-radius: 9px;
+  object-fit: cover;
+  background: #f1f2f4;
+  flex: none;
+}
+
+.adm-line-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.adm-line-main b {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.adm-line-main span {
+  font-size: 11.5px;
+  color: var(--owl-text-3);
+}
+
+.adm-line-price {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.adm-note {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f6f7f8;
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: var(--owl-text-2);
+}
+
+.adm-timeline {
+  margin: 0;
+  padding: 0 0 0 14px;
+  list-style: none;
+  border-left: 1px dashed var(--owl-line, #dcdde0);
+}
+
+.adm-timeline li {
+  position: relative;
+  padding: 0 0 14px 6px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.adm-timeline li::before {
+  content: '';
+  position: absolute;
+  left: -19px;
+  top: 5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--owl-red, #ff3b24);
+}
+
+.adm-timeline b {
+  font-weight: 600;
+}
+
+.adm-timeline span {
+  margin-left: 8px;
+  color: var(--owl-text-3);
+}
+
+.adm-timeline em {
+  display: block;
+  font-style: normal;
+  color: var(--owl-text-3);
+}
+
+.adm-dialog {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 60;
+  width: min(420px, calc(100vw - 32px));
+  padding: 20px 20px 16px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(15, 17, 20, 0.22);
+}
+
+.adm-dialog h2 {
+  margin: 0 0 14px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.adm-dialog-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.adm-flow {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adm-flow li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--owl-line, #f1f2f4);
+}
+
+.adm-flow li:last-child {
+  border-bottom: 0;
+}
+
+.adm-flow-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.adm-flow-main b {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.adm-flow-main span {
+  font-size: 11.5px;
+  color: var(--owl-text-3);
+}
+
+.adm-flow-time {
+  font-size: 11.5px;
+  color: var(--owl-text-3);
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .adm-kv {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------ 窄屏 ------------------------------ */
+
+@media (max-width: 900px) {
+  .adm-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .adm-side {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    overflow-x: auto;
+  }
+
+  .adm-brand {
+    padding: 0 8px 0 0;
+    border-bottom: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .adm-brand-text,
+  .adm-nav-group,
+  .adm-side-foot {
+    display: none;
+  }
+
+  .adm-nav {
+    flex-direction: row;
+  }
+
+  .adm-nav-item.is-active::before {
+    display: none;
+  }
+
+  .adm-body,
+  .adm-top {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .adm-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .adm-login {
+    grid-template-columns: 1fr;
+  }
+
+  .adm-login-aside {
+    display: none;
+  }
+}
+
+/* ---------------- 商品页：大类索引条 ---------------- */
+
+.adm-cats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-bottom: 1px solid #eef0f2;
+  background: #fff;
+}
+
+.adm-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 11px;
+  border: 1px solid #e3e5e8;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--owl-text-2);
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+}
+
+.adm-cat:hover:not(:disabled) {
+  border-color: var(--owl-text-4);
+  color: var(--owl-text-1);
+}
+
+.adm-cat.is-active {
+  border-color: var(--owl-text-1);
+  background: var(--owl-text-1);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* 数字：选中时反色，未选中时灰底，和 tab 上的红角标区分开 */
+.adm-cat em {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #f1f2f4;
+  color: var(--owl-text-3);
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+}
+
+.adm-cat.is-active em {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+.adm-cat:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ---------------- 商品页：行内上下架开关 ---------------- */
+
+.adm-status-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.adm-switch {
+  position: relative;
+  width: 34px;
+  height: 19px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #d6d8dc;
+  cursor: pointer;
+  transition: background 0.16s;
+}
+
+.adm-switch i {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 17, 19, 0.28);
+  transition: transform 0.16s;
+}
+
+.adm-switch.is-on {
+  background: var(--owl-text-1);
+}
+
+.adm-switch.is-on i {
+  transform: translateX(15px);
+}
+
+.adm-switch.is-busy {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.adm-switch:disabled {
+  cursor: progress;
+}
+
+.adm-status-text {
+  font-size: 12px;
+  color: var(--owl-text-2);
+}

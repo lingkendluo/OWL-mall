@@ -1,0 +1,39 @@
+/* 全局轻提示，子页共用 */
+
+.app-toast {
+  position: fixed;
+  left: 50%;
+  top: 96px;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+  padding: 10px 18px;
+  border-radius: var(--owl-radius-pill);
+  background: rgba(16, 18, 22, 0.94);
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1.35;
+  box-shadow: 0 18px 40px -22px rgba(16, 18, 22, 0.15);
+  opacity: 0;
+  transform: translate(-50%, -8px);
+  pointer-events: none;
+  transition:
+    opacity 0.26s var(--owl-ease),
+    transform 0.26s var(--owl-ease);
+}
+
+.app-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.app-toast i {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22);
+}

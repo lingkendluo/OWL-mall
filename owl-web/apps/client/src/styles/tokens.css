@@ -1,0 +1,107 @@
+/**
+ * Design Token（对应开发文档 1.6.1）
+ * 页面里不再出现裸色值，改主色只改这里。
+ * 命名统一 --owl-* 前缀，避免与登录页 login.css 里的 --primary 系列冲突。
+ *
+ * 当前主题：Mono（纯黑白）。登录页仍是独立的星空皮肤，两边互不影响。
+ * - 页面纯白，文字近黑；层级靠「1px 描边 + 极淡阴影」拉开，不靠颜色；
+ * - 所有强调（价格、按钮、徽标）统一用黑：黑底白字 / 白底黑字两种，不用彩色；
+ * - 品牌色阶全部是中性灰，--owl-brand-600 直接就是「主交互黑」；
+ * - 语义色（成功）也去色，靠图标 + 文案表达，保证整页没有第二个色相。
+ *
+ * 换成深色黑白只要把下面的「白 / 黑」两端对调（page→#0a0a0b、text-1→#f5f5f5），
+ * 结构不用动；但注意 --owl-on-dark 要跟着翻。
+ */
+:root {
+  /* 中性色阶：0 = 最黑，900 = 最白 */
+  --owl-brand-900: #0a0a0b;
+  --owl-brand-700: #2a2c30;
+  --owl-brand-600: #111214; /* 主交互色：按钮底、图标、描边、链接 */
+  --owl-brand-500: #2b2d31;
+  --owl-brand-100: #e3e4e7;
+  --owl-brand-50: #f4f5f6;
+
+  /* 实心按钮统一用这支黑渐变，比纯色更有层次 */
+  --owl-brand-grad: linear-gradient(135deg, #1d1e21 0%, #000000 100%);
+  --owl-brand-strong: #000000;
+
+  /* 原「描金」位置改成灰阶，语义不变（次要强调） */
+  --owl-gold-700: #6b6f76;
+  --owl-gold-500: #111214;
+  --owl-gold-100: #e6e7e9;
+  --owl-gold-50: #f3f4f5;
+
+  /* 电商语义色：黑白主题下价格用纯黑 + 加粗，比彩色更有分量 */
+  --owl-price: #0a0a0b;
+  --owl-promo: #0a0a0b;
+  --owl-success: #111214;
+
+  /*
+   * 点缀红：只出现在「推荐页顶部的分类面板」这一小块，
+   * 用来还原淘宝那种红顶头部，不参与其余页面的黑白体系。
+   */
+  --owl-red: #ff3b24;
+  --owl-red-deep: #cf2410;
+  --owl-red-50: #fff0eb;
+  --owl-red-100: #ffcfc2;
+  /* 头部底色：起点压到明显可见的珊瑚红，右侧才收白，保证黑字依旧压得住 */
+  --owl-red-wash: linear-gradient(102deg, #ffbfa9 0%, #ffd8cb 38%, #ffefe8 72%, #ffffff 96%);
+  --owl-red-line: linear-gradient(90deg, #ff2f12 0%, #ff5b3a 32%, #ff9a7e 64%, #ffcfc2 100%);
+
+  /* 文字：近黑 → 浅灰 */
+  --owl-text-1: #0f1113;
+  --owl-text-2: #4b4f55;
+  --owl-text-3: #797e86;
+  --owl-text-4: #a7abb2;
+
+  /* 面 */
+  --owl-white: #ffffff;
+  --owl-page: #ffffff;
+  --owl-surface: #ffffff; /* 卡片 / 面板：白，靠描边和阴影分层 */
+  --owl-surface-2: #f4f5f6; /* 输入框、次级填充 */
+  --owl-on-dark: #ffffff; /* 黑色面板上的文字 */
+
+  --owl-border: #e6e7e9;
+  --owl-border-soft: #f0f1f2;
+  --owl-bg: #ffffff;
+  --owl-hover: #f5f6f7;
+  --owl-fill-active: #ebedef;
+
+  /* 顶栏下方那条渐变：黑 → 浅灰 */
+  --owl-festive-line: linear-gradient(90deg, #0a0a0b 0%, #c9cbd0 100%);
+
+  /* 间距：4 的倍数 */
+  --owl-s1: 4px;
+  --owl-s2: 8px;
+  --owl-s3: 12px;
+  --owl-s4: 16px;
+  --owl-s5: 20px;
+  --owl-s6: 24px;
+  --owl-s8: 32px;
+  --owl-s10: 40px;
+  --owl-s12: 48px;
+
+  /* 字号 */
+  --owl-fs-price: 22px;
+  --owl-fs-title: 17px;
+  --owl-fs-body: 14px;
+  --owl-fs-cap: 11px;
+
+  /* 圆角 */
+  --owl-radius-sm: 8px;
+  --owl-radius: 10px;
+  --owl-radius-lg: 16px;
+  --owl-radius-xl: 22px;
+  --owl-radius-pill: 999px;
+
+  /* 阴影：中性灰黑，很淡；黑白主题靠描边分层，阴影只做轻微托起 */
+  --owl-shadow-1: 0 1px 2px rgba(16, 18, 22, 0.06);
+  --owl-shadow-2: 0 8px 24px -16px rgba(16, 18, 22, 0.16);
+  --owl-shadow-3: 0 20px 48px -26px rgba(16, 18, 22, 0.2);
+
+  /* 玻璃质感：白底毛玻璃，替代登录页那种深色玻璃 */
+  --owl-blur: saturate(120%) blur(16px);
+
+  /* 动效 */
+  --owl-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}

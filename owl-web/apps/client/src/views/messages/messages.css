@@ -1,0 +1,307 @@
+/* 消息页：类名统一 msg- 前缀 */
+
+.msg {
+  display: grid;
+  gap: 14px;
+}
+
+/* ---------- 分类 tab ---------- */
+.msg-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.msg-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--owl-border);
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-surface);
+}
+
+.msg-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--owl-radius-pill);
+  background: transparent;
+  color: var(--owl-text-2);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    background 0.22s,
+    color 0.22s;
+}
+
+.msg-tab:hover {
+  color: var(--owl-text-1);
+}
+
+.msg-tab.is-active {
+  background: var(--owl-brand-grad);
+  color: var(--owl-on-dark);
+  font-weight: 600;
+}
+
+.msg-tab em {
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-price);
+  color: var(--owl-on-dark);
+  font-size: 9.5px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+}
+
+.msg-tab.is-active em {
+  background: var(--owl-on-dark);
+  color: var(--owl-brand-600);
+}
+
+.msg-readall {
+  margin-left: auto;
+  height: 34px;
+  padding: 0 16px;
+  border: 1px solid var(--owl-border);
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-surface);
+  color: var(--owl-text-2);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.msg-readall:hover {
+  background: var(--owl-hover);
+  color: var(--owl-text-1);
+  border-color: var(--owl-brand-100);
+}
+
+/* ---------- 列表 ---------- */
+.msg-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.msg-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 4px 8px 4px 4px;
+  border: 1px solid var(--owl-border);
+  border-radius: 16px;
+  background: var(--owl-surface);
+  transition:
+    border-color 0.22s,
+    background 0.22s;
+}
+
+.msg-item:hover {
+  border-color: var(--owl-brand-100);
+  background: var(--owl-surface);
+}
+
+.msg-item.is-unread {
+  border-color: var(--owl-brand-100);
+  background: var(--owl-surface);
+  box-shadow: inset 3px 0 0 var(--owl-brand-700);
+}
+
+.msg-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--owl-text-1);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.msg-ico {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--owl-fill-active);
+  color: var(--owl-text-1);
+}
+
+.msg-ico svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* 订单类压在深色上，视觉上更“事务性” */
+.msg-ico--order {
+  background: var(--owl-brand-grad);
+  color: var(--owl-on-dark);
+}
+
+.msg-body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.msg-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.msg-title {
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.msg-item.is-unread .msg-title {
+  font-weight: 700;
+}
+
+.msg-time {
+  flex: none;
+  margin-left: auto;
+  font-style: normal;
+  font-size: 11px;
+  color: var(--owl-text-4);
+  font-variant-numeric: tabular-nums;
+}
+
+.msg-text {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--owl-text-2);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.msg-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--owl-price);
+}
+
+.msg-del {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  margin-top: 12px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--owl-text-4);
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.msg-del:hover {
+  background: var(--owl-hover);
+  color: var(--owl-text-1);
+}
+
+.msg-del svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ---------- 空态 ---------- */
+.msg-empty {
+  padding: 68px 24px;
+  border: 1px solid var(--owl-border);
+  border-radius: 20px;
+  background: var(--owl-surface);
+  text-align: center;
+}
+
+.msg-empty-ico {
+  display: block;
+  font-size: 48px;
+  line-height: 1;
+  filter: grayscale(1) contrast(1.02);
+}
+
+.msg-empty h2 {
+  margin: 16px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.msg-empty p {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  color: var(--owl-text-3);
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 640px) {
+  .msg-tabs {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .msg-tab {
+    flex: 1;
+    justify-content: center;
+    padding: 0 8px;
+  }
+
+  .msg-readall {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .msg-main {
+    padding: 12px 6px;
+    gap: 10px;
+  }
+
+  .msg-ico {
+    width: 30px;
+    height: 30px;
+  }
+
+  .msg-text {
+    -webkit-line-clamp: 3;
+  }
+}

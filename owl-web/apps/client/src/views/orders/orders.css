@@ -1,0 +1,351 @@
+/**
+ * 我的订单页（/orders）
+ * 视觉沿用商城白卡 + 细边框，类名统一 ord- 前缀。
+ */
+
+/* ================= 状态筛选 ================= */
+.ord-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 16px;
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-brand-50);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.ord-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.ord-tab {
+  flex: none;
+  height: 34px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--owl-radius-pill);
+  background: transparent;
+  color: var(--owl-text-2);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.ord-tab:hover {
+  color: var(--owl-text-1);
+}
+
+.ord-tab.is-active {
+  background: var(--owl-surface);
+  color: var(--owl-text-1);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(15, 17, 19, 0.08);
+}
+
+/* ================= 错误条 ================= */
+.ord-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 12px 16px;
+  border: 1px solid var(--owl-red-100);
+  border-radius: 12px;
+  background: var(--owl-red-50);
+  color: var(--owl-red-deep);
+  font-size: 13px;
+}
+
+.ord-alert button {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ================= 列表 ================= */
+.ord-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.ord-card {
+  border: 1px solid var(--owl-brand-100);
+  border-radius: 16px;
+  background: var(--owl-surface);
+  overflow: hidden;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.ord-card:hover {
+  border-color: var(--owl-brand-500);
+  box-shadow: 0 10px 30px -22px rgba(10, 10, 11, 0.5);
+}
+
+.ord-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--owl-brand-50);
+  background: var(--owl-brand-50);
+}
+
+.ord-no {
+  font-size: 12px;
+  color: var(--owl-text-3);
+  letter-spacing: 0.02em;
+}
+
+.ord-status {
+  margin-left: auto;
+  padding: 3px 10px;
+  border-radius: var(--owl-radius-pill);
+  font-size: 11.5px;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.ord-status.is-unpaid {
+  background: var(--owl-red-50);
+  color: var(--owl-red-deep);
+}
+
+.ord-status.is-undelivered {
+  background: #fff6e5;
+  color: #a26a00;
+}
+
+.ord-status.is-shipping {
+  background: #eef4ff;
+  color: #2c5fb3;
+}
+
+.ord-status.is-finished {
+  background: #eef8ef;
+  color: #2c7a3c;
+}
+
+.ord-status.is-off {
+  background: var(--owl-brand-50);
+  color: var(--owl-text-3);
+}
+
+.ord-body {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+}
+
+.ord-thumb {
+  flex: none;
+  width: 62px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--owl-brand-50);
+  overflow: hidden;
+  font-size: 26px;
+}
+
+.ord-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ord-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ord-name {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--owl-text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ord-meta {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: var(--owl-text-3);
+}
+
+.ord-expire {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--owl-red-deep);
+}
+
+.ord-amount {
+  flex: none;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--owl-text-1);
+}
+
+.ord-amount small {
+  margin-right: 2px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--owl-text-2);
+}
+
+.ord-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--owl-brand-50);
+}
+
+.ord-foot-note {
+  font-size: 12px;
+  color: var(--owl-text-3);
+}
+
+.ord-btn {
+  height: 32px;
+  padding: 0 18px;
+  border: 1px solid var(--owl-brand-600);
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-brand-grad);
+  color: var(--owl-on-dark);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s var(--owl-ease),
+    background 0.2s;
+}
+
+.ord-btn:hover {
+  transform: translateY(-1px);
+}
+
+.ord-btn.is-ghost {
+  background: transparent;
+  color: var(--owl-text-2);
+  border-color: var(--owl-brand-100);
+  font-weight: 500;
+}
+
+.ord-btn.is-ghost:hover {
+  color: var(--owl-text-1);
+  border-color: var(--owl-brand-500);
+}
+
+/* ================= 空态 ================= */
+.ord-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 72px 20px;
+  border: 1px dashed var(--owl-brand-100);
+  border-radius: 18px;
+  background: var(--owl-surface);
+  text-align: center;
+}
+
+.ord-empty-ico {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--owl-brand-50);
+  color: var(--owl-brand-600);
+}
+
+.ord-empty-ico svg {
+  width: 26px;
+  height: 26px;
+}
+
+.ord-empty b {
+  font-size: 14.5px;
+  color: var(--owl-text-1);
+}
+
+.ord-empty p {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--owl-text-3);
+}
+
+.ord-empty-btn {
+  margin-top: 6px;
+  height: 36px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-brand-grad);
+  color: var(--owl-on-dark);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ================= 分页 ================= */
+.ord-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 20px;
+  font-size: 12.5px;
+  color: var(--owl-text-3);
+}
+
+.ord-pager button {
+  height: 32px;
+  padding: 0 16px;
+  border: 1px solid var(--owl-brand-100);
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-surface);
+  color: var(--owl-text-2);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.ord-pager button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .ord-body {
+    flex-wrap: wrap;
+  }
+
+  .ord-amount {
+    width: 100%;
+    text-align: right;
+  }
+}

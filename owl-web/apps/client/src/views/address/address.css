@@ -1,0 +1,472 @@
+/* ------------------------------ 地址管理 ------------------------------ */
+
+.addr-page {
+  padding-bottom: 8px;
+}
+
+.addr-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.addr-head h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--owl-text-1);
+}
+
+.addr-head p {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: var(--owl-text-3);
+}
+
+.addr-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-brand-600);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.16s var(--owl-ease);
+}
+
+.addr-new:hover {
+  background: var(--owl-brand-700);
+}
+
+.addr-new svg {
+  width: 15px;
+  height: 15px;
+}
+
+.addr-ghost {
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--owl-border);
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-surface);
+  color: var(--owl-text-2);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.addr-ghost:hover {
+  border-color: var(--owl-brand-500);
+  color: var(--owl-brand-700);
+}
+
+.addr-ghost.sm {
+  height: 30px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+/* ------------------------------ 卡片列表 ------------------------------ */
+
+.addr-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.addr-card {
+  position: relative;
+  padding: 16px 18px 12px;
+  border: 1px solid var(--owl-border);
+  border-radius: var(--owl-radius-lg);
+  background: var(--owl-surface);
+  transition: border-color 0.16s var(--owl-ease), box-shadow 0.16s var(--owl-ease);
+}
+
+.addr-card:hover {
+  border-color: var(--owl-brand-100);
+  box-shadow: var(--owl-shadow-2);
+}
+
+.addr-card.is-default {
+  border-color: var(--owl-brand-500);
+  background: linear-gradient(180deg, var(--owl-brand-50) 0%, #ffffff 62%);
+}
+
+.addr-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.addr-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-surface-2);
+  color: var(--owl-text-2);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.addr-card.is-default .addr-tag {
+  background: var(--owl-brand-100);
+  color: var(--owl-brand-700);
+}
+
+.addr-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--owl-text-1);
+}
+
+.addr-phone {
+  font-size: 12.5px;
+  color: var(--owl-text-3);
+  letter-spacing: 0.01em;
+}
+
+.addr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-brand-600);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.addr-badge svg {
+  width: 11px;
+  height: 11px;
+}
+
+.addr-text {
+  margin: 10px 0 14px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--owl-text-2);
+  word-break: break-all;
+}
+
+.addr-text span {
+  margin-right: 6px;
+  color: var(--owl-text-3);
+}
+
+.addr-card-foot {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--owl-border-soft);
+}
+
+.addr-gap {
+  flex: 1;
+}
+
+.addr-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--owl-text-2);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.addr-link:hover {
+  color: var(--owl-brand-700);
+}
+
+.addr-link svg {
+  width: 13px;
+  height: 13px;
+}
+
+.addr-link.is-static {
+  color: var(--owl-brand-700);
+  font-weight: 600;
+  cursor: default;
+}
+
+.addr-link.is-danger:hover {
+  color: var(--owl-red-deep);
+}
+
+/* ------------------------------ 空态 / 提示 ------------------------------ */
+
+.addr-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 56px 20px;
+  border: 1px dashed var(--owl-border);
+  border-radius: var(--owl-radius-lg);
+  background: var(--owl-surface);
+  text-align: center;
+}
+
+.addr-empty-ico {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  background: var(--owl-brand-50);
+  color: var(--owl-brand-600);
+}
+
+.addr-empty-ico svg {
+  width: 26px;
+  height: 26px;
+}
+
+.addr-empty b {
+  font-size: 14px;
+  color: var(--owl-text-1);
+}
+
+.addr-empty p {
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  color: var(--owl-text-3);
+}
+
+.addr-tip {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-radius: var(--owl-radius);
+  background: var(--owl-surface-2);
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--owl-text-3);
+}
+
+.addr-tip b {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--owl-text-1);
+  font-size: 12.5px;
+}
+
+.addr-back {
+  margin-left: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--owl-brand-700);
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ------------------------------ 抽屉表单 ------------------------------ */
+
+.addr-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(15, 17, 19, 0.36);
+}
+
+.addr-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, 94vw);
+  background: var(--owl-surface);
+  box-shadow: -18px 0 50px rgba(15, 17, 19, 0.16);
+  animation: addr-in 0.2s var(--owl-ease);
+}
+
+@keyframes addr-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0.6;
+  }
+}
+
+.addr-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--owl-border);
+}
+
+.addr-drawer-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.addr-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px;
+}
+
+.addr-drawer-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--owl-border);
+}
+
+.addr-field {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.addr-field > span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12.5px;
+  color: var(--owl-text-2);
+}
+
+.addr-field input,
+.addr-field textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--owl-border);
+  border-radius: var(--owl-radius);
+  background: var(--owl-surface-2);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--owl-text-1);
+  outline: none;
+  transition: border-color 0.16s var(--owl-ease), background 0.16s var(--owl-ease);
+}
+
+.addr-field textarea {
+  resize: vertical;
+  line-height: 1.7;
+}
+
+.addr-field input:focus,
+.addr-field textarea:focus {
+  border-color: var(--owl-brand-500);
+  background: var(--owl-surface);
+}
+
+.addr-field em {
+  display: block;
+  margin-top: 5px;
+  font-size: 11.5px;
+  font-style: normal;
+  color: var(--owl-text-4);
+}
+
+.addr-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.addr-tag-btn {
+  height: 30px;
+  padding: 0 14px;
+  border: 1px solid var(--owl-border);
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-surface);
+  color: var(--owl-text-2);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.addr-tag-btn.is-on {
+  border-color: var(--owl-brand-500);
+  background: var(--owl-brand-50);
+  color: var(--owl-brand-700);
+  font-weight: 600;
+}
+
+/* 选择器带上 .addr-tags 提高权重，压过上面的 .addr-field input{width:100%} */
+.addr-tags .addr-tag-input {
+  flex: none;
+  width: 84px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--owl-border);
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-surface-2);
+  font-size: 12.5px;
+  outline: none;
+}
+
+.addr-tags .addr-tag-input:focus {
+  border-color: var(--owl-brand-500);
+  background: var(--owl-surface);
+}
+
+.addr-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--owl-text-2);
+  cursor: pointer;
+}
+
+.addr-check input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--owl-brand-600);
+}
+
+.addr-alert {
+  margin: 0 0 14px;
+  padding: 9px 12px;
+  border-radius: var(--owl-radius);
+  background: var(--owl-red-50);
+  color: var(--owl-red-deep);
+  font-size: 12.5px;
+}
+
+/* ------------------------------ 底部条 ------------------------------ */
+
+.addr-foot {
+  display: flex;
+  gap: 12px;
+}
+
+/* ------------------------------ 窄屏 ------------------------------ */
+
+@media (max-width: 860px) {
+  .addr-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .addr-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+}

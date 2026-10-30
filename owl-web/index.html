@@ -15,6 +15,26 @@
   </head>
   <body>
     <div id="app"></div>
+
+    <!--
+      兜底提示：Vue 挂载成功后 #app 会有子节点，这段永远不显示。
+      只有在用 Live Server / 直接双击打开 index.html 时（无法编译 TS 与 .vue）
+      才会在 2 秒后出现，避免出现"白屏但标题正常"的迷惑情况。
+    -->
+    <div id="boot-error" hidden style="font: 14px/1.8 system-ui, sans-serif; max-width: 640px; margin: 80px auto; padding: 24px 28px; border-radius: 12px; border: 1px solid #f0c4cd; background: #fff6f8; color: #7a3b47;">
+      <strong style="display: block; font-size: 16px; margin-bottom: 8px;">页面未能启动</strong>
+      本项目是 Vite + Vue 3 工程，<b>不能用 Live Server 或双击 HTML 打开</b>（浏览器无法直接执行 <code>.ts</code> / <code>.vue</code>）。<br />
+      请在 <code>owl-web</code> 目录下执行：<br />
+      <code style="display: inline-block; margin-top: 10px; padding: 6px 12px; border-radius: 6px; background: #fff; border: 1px solid #f0c4cd;">npm run dev</code>
+      ，然后访问终端里输出的地址。
+    </div>
+    <script>
+      setTimeout(function () {
+        var app = document.getElementById('app')
+        var tip = document.getElementById('boot-error')
+        if (app && tip && app.children.length === 0) tip.hidden = false
+      }, 2000)
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

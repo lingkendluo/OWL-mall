@@ -1,0 +1,585 @@
+/**
+ * 商品详情页 /item/:id
+ * 主图 + 购买区 + 三段详情 + 同类推荐
+ */
+
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: var(--owl-text-3);
+}
+
+.crumb-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--owl-text-2);
+  text-decoration: none;
+}
+
+.crumb-home:hover {
+  color: var(--owl-brand-600);
+}
+
+.crumb-home svg {
+  width: 13px;
+  height: 13px;
+}
+
+.crumb-sep {
+  color: var(--owl-text-4);
+}
+
+.crumb-cur {
+  color: var(--owl-text-2);
+  text-decoration: none;
+  max-width: 24ch;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crumb-cur:hover {
+  color: var(--owl-brand-600);
+}
+
+.crumb-cur.is-now {
+  color: var(--owl-text-1);
+  font-weight: 500;
+}
+
+/* ================= 主图 + 购买区 ================= */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.hero-shot {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--owl-border-soft);
+  border-radius: var(--owl-radius-xl);
+  overflow: hidden;
+  background: linear-gradient(160deg, #ffffff 0%, #f2f3f5 100%);
+}
+
+/* 京东主图底部常带促销条，1:1 画框里放大一点把它裁掉 */
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 44%;
+  transform: scale(1.06);
+}
+
+.hero-emoji {
+  font-size: 120px;
+  line-height: 1;
+  filter: drop-shadow(0 14px 20px rgba(16, 18, 22, 0.12));
+}
+
+.hero-tag {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 1;
+  padding: 4px 10px;
+  border-radius: var(--owl-radius-pill);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--owl-shadow-1);
+  font-size: 11.5px;
+  color: var(--owl-text-2);
+}
+
+.hero-info {
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.hero-slogan {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  color: var(--owl-text-3);
+  letter-spacing: 0.01em;
+}
+
+.hero-name {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: -0.02em;
+  color: var(--owl-text-1);
+}
+
+.hero-spec {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--owl-text-3);
+}
+
+.hero-price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  border-radius: var(--owl-radius-lg);
+  background: var(--owl-red-wash);
+  border: 1px solid var(--owl-red-100);
+}
+
+.hero-now {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--owl-text-1);
+}
+
+.hero-now small {
+  font-size: 15px;
+  font-weight: 600;
+  margin-right: 2px;
+}
+
+.hero-was {
+  font-size: 13px;
+  color: var(--owl-text-4);
+}
+
+.hero-save {
+  padding: 2px 8px;
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-red-100);
+  font-size: 11.5px;
+  color: var(--owl-red-deep);
+}
+
+/* 主图旁的关键参数速览 */
+.hero-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 14px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero-facts li {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12.5px;
+}
+
+.hero-facts span {
+  flex: none;
+  color: var(--owl-text-3);
+}
+
+.hero-facts b {
+  min-width: 0;
+  font-weight: 500;
+  color: var(--owl-text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero-act {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.hero-step {
+  display: inline-flex;
+  align-items: center;
+  height: 42px;
+  border: 1px solid var(--owl-border);
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-surface);
+  overflow: hidden;
+}
+
+.hero-step button {
+  width: 38px;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  font-size: 17px;
+  color: var(--owl-text-1);
+  cursor: pointer;
+  transition: background 0.16s;
+}
+
+.hero-step button:hover:not(:disabled) {
+  background: var(--owl-hover);
+}
+
+.hero-step button:disabled {
+  color: var(--owl-text-4);
+  cursor: not-allowed;
+}
+
+.hero-step span {
+  min-width: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 42px;
+  padding: 0 22px;
+  border-radius: var(--owl-radius-pill);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    transform 0.18s var(--owl-ease),
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.hero-btn svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.hero-btn:active {
+  transform: scale(0.97);
+}
+
+.hero-btn--cart {
+  border: 1px solid var(--owl-border);
+  background: var(--owl-surface);
+  color: var(--owl-text-1);
+}
+
+.hero-btn--cart:hover {
+  border-color: var(--owl-brand-600);
+}
+
+.hero-btn--cart.is-added {
+  border-color: transparent;
+  background: var(--owl-brand-600);
+  color: var(--owl-on-dark);
+}
+
+.hero-btn--buy {
+  border: 1px solid transparent;
+  background: var(--owl-red);
+  color: #fff;
+  box-shadow: 0 12px 24px -14px rgba(226, 53, 31, 0.9);
+}
+
+.hero-btn--buy:hover {
+  background: var(--owl-red-deep);
+}
+
+.hero-tip {
+  margin: 14px 0 0;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--owl-text-4);
+}
+
+.hero-serve {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 12px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px dashed var(--owl-border);
+  list-style: none;
+  font-size: 12px;
+  color: var(--owl-text-3);
+}
+
+.hero-serve li::before {
+  content: '·';
+  margin-right: 5px;
+  color: var(--owl-text-4);
+}
+
+/* ================= 详情分段 ================= */
+.sec {
+  margin-top: 34px;
+}
+
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--owl-border-soft);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.sec-head span {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--owl-text-4);
+}
+
+.sec-head .sec-more {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--owl-text-3);
+  text-decoration: none;
+}
+
+.sec-head .sec-more:hover {
+  color: var(--owl-brand-600);
+}
+
+.sec-text {
+  margin: 0;
+  max-width: 78ch;
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: var(--owl-text-2);
+}
+
+/* 参数 / 营养成分表
+   一格 = 「标签在上、值在下」的两行小卡。
+   早先是 dt 左 / dd 右两端对齐，宽屏一行能塞 5 格，读起来会串成
+   「产地 云南 糖度 ≥16°Bx 单果 10g起」一整句 —— 改成上下结构后
+   每组自带归属，扫读时不会错行。 */
+.fact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+  gap: 1px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--owl-border-soft);
+  border-radius: var(--owl-radius-lg);
+  background: var(--owl-border-soft);
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 11px 14px 12px;
+  background: var(--owl-surface);
+}
+
+.fact dt {
+  font-size: 11.5px;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  color: var(--owl-text-3);
+}
+
+.fact dd {
+  margin: 0;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--owl-text-1);
+  overflow-wrap: break-word;
+}
+
+/* 贴士：宽屏铺两列，别让一句话拉满 1100px */
+.tip-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: tip;
+}
+
+.tip-list li {
+  position: relative;
+  padding: 11px 14px 11px 40px;
+  border: 1px solid var(--owl-border-soft);
+  border-radius: var(--owl-radius);
+  background: var(--owl-surface);
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--owl-text-2);
+  counter-increment: tip;
+}
+
+.tip-list li::before {
+  content: counter(tip);
+  position: absolute;
+  left: 13px;
+  top: 11px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--owl-brand-600);
+  color: var(--owl-on-dark);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+/* 底部结算条 */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px var(--owl-s8);
+}
+
+.bar-info {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+  margin-right: auto;
+}
+
+.bar-count {
+  font-size: 13px;
+  color: var(--owl-text-2);
+}
+
+.bar-amount {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--owl-text-1);
+}
+
+.bar-amount small {
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 1px;
+}
+
+.bar-go {
+  flex: none;
+  height: 40px;
+  padding: 0 26px;
+  border: 0;
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-brand-grad);
+  color: var(--owl-on-dark);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.miss {
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  padding: 64px 20px;
+  border: 1px solid var(--owl-border-soft);
+  border-radius: var(--owl-radius-xl);
+  background: var(--owl-surface);
+  text-align: center;
+}
+
+.miss p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--owl-text-2);
+}
+
+.miss-go {
+  padding: 8px 18px;
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-brand-grad);
+  color: var(--owl-on-dark);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+/* ================= 窄屏 ================= */
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .hero-shot {
+    aspect-ratio: 4 / 3;
+  }
+
+  .hero-name {
+    font-size: 21px;
+  }
+
+  .hero-now {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero-act {
+    gap: 8px;
+  }
+
+  .hero-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .hero-step {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  .hero-step span {
+    flex: 1;
+  }
+
+  .bar {
+    padding: 8px 16px;
+    gap: 10px;
+  }
+
+  .bar-go {
+    height: 38px;
+    padding: 0 20px;
+    font-size: 13px;
+  }
+
+  .bar-amount {
+    font-size: 18px;
+  }
+}

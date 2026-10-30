@@ -1,0 +1,42 @@
+/**
+ * 全局基线：只放真正全局的东西（盒模型、字体、链接复位、页面底色）。
+ * 页面级样式一律写在各自 view 目录下的 .css 里，避免全局污染。
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+/**
+ * 全局底色。
+ * 商城是纯白黑白主题；登录页那套星空底不放这里，而是写在 login.css 的
+ * body.login-page 上、由 LoginView 挂类名开关 —— 否则登录后进商城会带着黑底。
+ */
+body {
+  margin: 0;
+  overflow-x: hidden;
+  font-family:
+    'Poppins', 'HarmonyOS Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system,
+    'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  color: var(--owl-text-1);
+  background-color: var(--owl-page);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}

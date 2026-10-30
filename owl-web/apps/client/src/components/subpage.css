@@ -1,0 +1,191 @@
+/* 子页外壳：购物车 / 个人中心 / 消息 共用
+   固定顶栏 + 可滚内容区 + 可选底部操作条，类名统一 sub- 前缀 */
+
+.sub {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--owl-white);
+  color: var(--owl-text-1);
+  font-size: var(--owl-fs-body);
+  line-height: 1.5;
+}
+
+.sub-top {
+  position: relative; /* 给底部那条渐变线当定位基准 */
+  flex: none;
+  background: rgba(255, 255, 255, 0.88);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  border-bottom: 1px solid var(--owl-border-soft);
+}
+
+.sub-top-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  height: 68px;
+  padding: 0 var(--owl-s8);
+  display: flex;
+  align-items: center;
+  gap: var(--owl-s4);
+}
+
+.sub-back {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--owl-border);
+  border-radius: 50%;
+  background: var(--owl-surface);
+  color: var(--owl-text-2);
+  cursor: pointer;
+  transition:
+    background 0.22s,
+    color 0.22s,
+    transform 0.26s var(--owl-ease);
+}
+
+.sub-back:hover {
+  background: var(--owl-hover);
+  color: var(--owl-text-1);
+  transform: translateX(-2px);
+}
+
+.sub-back svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sub-title {
+  min-width: 0;
+}
+
+.sub-title h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sub-title p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--owl-text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 助手入口：只出现在子页（首页的品牌胶囊负责这件事），放在顶栏最右，跟右侧抽屉对齐 */
+.sub-ai {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 13px 0 9px;
+  border: 1px solid var(--owl-border);
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-surface);
+  color: var(--owl-text-2);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.sub-ai svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+.sub-ai:hover {
+  background: var(--owl-brand-grad);
+  border-color: var(--owl-brand-500);
+  color: var(--owl-on-dark);
+}
+
+.sub-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 18, 22, 0.2) transparent;
+}
+
+.sub-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sub-body::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: rgba(16, 18, 22, 0.26);
+}
+
+.sub-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sub-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px var(--owl-s8) 32px;
+}
+
+.sub-foot {
+  flex: none;
+  border-top: 1px solid var(--owl-border-soft);
+  background: var(--owl-surface);
+}
+
+@media (max-width: 720px) {
+  .sub-top-inner {
+    height: auto;
+    min-height: 60px;
+    padding: 10px 16px;
+    gap: var(--owl-s3);
+  }
+
+  .sub-title h1 {
+    font-size: 16px;
+  }
+
+  /* 窄屏只留猫头鹰图标，把宽度让给「返回 + 标题」 */
+  .sub-ai {
+    padding: 0 10px;
+  }
+
+  .sub-ai span {
+    display: none;
+  }
+
+  .sub-inner {
+    padding: 16px 16px 24px;
+  }
+}
+
+/* 子页顶栏同样一条红金渐变，与首页保持一致 */
+.sub-top::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--owl-festive-line);
+  opacity: 0.9;
+  pointer-events: none;
+}

@@ -4,17 +4,23 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
-    "preview": "vite preview",
-    "build-only": "vite build",
+    "dev": "npm run dev:client",
+    "dev:client": "vite --config apps/client/vite.config.ts",
+    "dev:admin": "vite --config apps/admin/vite.config.ts",
+    "dev:all": "run-p dev:client dev:admin",
+    "build": "run-p build:client build:admin",
+    "build:client": "vue-tsc --build apps/client/tsconfig.json && vite build --config apps/client/vite.config.ts",
+    "build:admin": "vue-tsc --build apps/admin/tsconfig.json && vite build --config apps/admin/vite.config.ts",
+    "preview:client": "vite preview --config apps/client/vite.config.ts",
+    "preview:admin": "vite preview --config apps/admin/vite.config.ts",
     "type-check": "vue-tsc --build",
     "lint": "run-s \"lint:*\"",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
-    "format": "prettier --write --experimental-cli src/"
+    "format": "prettier --write --experimental-cli apps/ shared/"
   },
   "dependencies": {
+    "ogl": "^1.0.11",
     "pinia": "^4.0.3",
     "vue": "^3.5.42",
     "vue-router": "^5.3.1"

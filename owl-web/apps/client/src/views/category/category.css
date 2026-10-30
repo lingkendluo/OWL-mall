@@ -1,0 +1,152 @@
+/**
+ * 分类页 /c/:catId
+ * 只写本页独有的部分：面包屑、细分筛选条、空态。
+ * 商品卡与 .product-grid 复用 home.css。
+ */
+
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--owl-text-3);
+}
+
+.crumb-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--owl-text-2);
+  text-decoration: none;
+}
+
+.crumb-home:hover {
+  color: var(--owl-brand-600);
+}
+
+.crumb-home svg {
+  width: 13px;
+  height: 13px;
+}
+
+.crumb-sep {
+  color: var(--owl-text-4);
+}
+
+.crumb-cur {
+  color: var(--owl-text-2);
+  text-decoration: none;
+}
+
+.crumb-cur:hover {
+  color: var(--owl-brand-600);
+}
+
+.crumb-cur.is-now {
+  color: var(--owl-text-1);
+  font-weight: 500;
+}
+
+/* 细分筛选条：横向排列，窄屏可横滑 */
+.subbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--owl-border-soft);
+  border-radius: var(--owl-radius-lg);
+  background: var(--owl-surface);
+  box-shadow: var(--owl-shadow-1);
+}
+
+.subchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  border: 1px solid var(--owl-border);
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-surface);
+  font-family: inherit;
+  font-size: 12.5px;
+  color: var(--owl-text-2);
+  cursor: pointer;
+  transition: all 0.18s var(--owl-ease);
+}
+
+.subchip:hover {
+  border-color: var(--owl-brand-600);
+  color: var(--owl-brand-600);
+}
+
+.subchip b {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--owl-text-4);
+}
+
+.subchip.is-on {
+  border-color: transparent;
+  background: var(--owl-brand-grad);
+  color: var(--owl-on-dark);
+}
+
+.subchip.is-on b {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.notice {
+  margin: 0 0 14px;
+  padding: 9px 13px;
+  border: 1px dashed var(--owl-border);
+  border-radius: var(--owl-radius);
+  background: var(--owl-surface-2);
+  font-size: 12.5px;
+  color: var(--owl-text-2);
+}
+
+.miss {
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  padding: 64px 20px;
+  border: 1px solid var(--owl-border-soft);
+  border-radius: var(--owl-radius-xl);
+  background: var(--owl-surface);
+  text-align: center;
+}
+
+.miss p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--owl-text-2);
+}
+
+.miss-go {
+  padding: 8px 18px;
+  border-radius: var(--owl-radius-pill);
+  background: var(--owl-brand-grad);
+  color: var(--owl-on-dark);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .subbar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 8px 10px;
+    scrollbar-width: none;
+  }
+
+  .subbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .subchip {
+    flex: 0 0 auto;
+  }
+}
